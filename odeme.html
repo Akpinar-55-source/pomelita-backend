@@ -1,68 +1,234 @@
-// --- YENİLENMİŞ ÖDEME FONKSİYONU ---
-async function completeOrder() {
-    if(sepet.length === 0) { alert("Sepet boş!"); return; }
-    
-    // Müşteri bilgilerini al
-    const musteri = { 
-        ad: document.getElementById('ad').value, 
-        soyad: document.getElementById('soyad').value, 
-        tel: document.getElementById('tel').value, 
-        adres: document.getElementById('adres').value,
-        il: document.getElementById('il').value,
-        email: document.getElementById('email').value 
-    };
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomelita | Ödeme</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sacramento&family=Quicksand:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-body: #ffffff; --color-purple: #9F8CC2; --color-mint: #98DDCA; --bg-soft-purple: #F4F0FF; }
+        body { background-color: var(--bg-soft-purple); font-family: 'Quicksand', sans-serif; color: #4a4a4a; }
+        .brand-font { font-family: 'Sacramento', cursive; font-weight: 400; letter-spacing: 1px; }
+        .form-input { width: 100%; padding: 12px; border: 1px solid #e5e7eb; background-color: white; border-radius: 8px; outline: none; transition: 0.3s; }
+        .form-input:focus { border-color: var(--color-purple); box-shadow: 0 0 0 3px rgba(159, 140, 194, 0.1); }
+        .btn-pay { width: 100%; padding: 15px; background-color: var(--color-mint); color: white; font-weight: 700; text-transform: uppercase; border-radius: 12px; transition: 0.3s; font-size: 1.1rem; }
+        .btn-pay:hover { background-color: white; color: var(--color-mint); border: 2px solid var(--color-mint); }
+        .btn-pay:disabled { background-color: #ccc; border-color: #ccc; cursor: not-allowed; }
+        .credit-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); color: white; padding: 25px; height: 220px; font-family: 'Share Tech Mono', monospace; }
+        .btn-apply { background: #4a4a4a; color: white; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: bold; }
+    </style>
+</head>
+<body class="py-10 px-4">
 
-    // Basit doğrulama
-    if(!musteri.ad || !musteri.tel || !musteri.adres || !musteri.email) { 
-        alert("Lütfen tüm adres ve iletişim bilgilerini doldurun."); return; 
-    }
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-10">
+            <a href="index.html" class="text-5xl brand-font text-purple-400 no-underline">Pomelita</a>
+            <p class="text-gray-500 mt-2"><i class="fas fa-lock text-green-500"></i> 256-Bit SSL Güvenli Ödeme</p>
+        </div>
 
-    // Butonu kilitle
-    const btn = document.querySelector('.btn-pay');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Ödeme Sayfası Hazırlanıyor...'; 
-    btn.disabled = true;
+        <div class="grid lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-purple-50">
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2 text-purple-600"><i class="fas fa-map-marker-alt"></i> Teslimat Adresi</h3>
+                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                        <input type="text" id="ad" placeholder="Adınız" class="form-input">
+                        <input type="text" id="soyad" placeholder="Soyadınız" class="form-input">
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                        <input type="email" id="email" placeholder="E-posta" class="form-input">
+                        <input type="tel" id="tel" placeholder="Telefon" class="form-input">
+                    </div>
+                    <textarea id="adres" placeholder="Açık Adres" class="form-input h-24 mb-4"></textarea>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="il" placeholder="İl" class="form-input">
+                        <input type="text" id="ilce" placeholder="İlçe" class="form-input">
+                    </div>
+                </div>
 
-    // Toplam tutarı sayıya çevir
-    const toplamTutar = parseFloat(finalTotalEl.innerText.replace('TL','').replace('.','').replace(',','.'));
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-purple-50">
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2 text-purple-600"><i class="far fa-credit-card"></i> Kart Bilgileri</h3>
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div class="credit-card flex flex-col justify-between">
+                            <div class="flex justify-between"><div class="w-12 h-8 bg-yellow-400 rounded"></div><i class="fab fa-cc-visa text-4xl opacity-80"></i></div>
+                            <div><div id="card-number-display" class="text-2xl mb-4">#### #### #### ####</div><div class="flex justify-between text-sm uppercase"><span>AD SOYAD</span><span>MM/YY</span></div></div>
+                        </div>
+                        <div class="space-y-4">
+                            <input type="text" id="cc-number" placeholder="Kart Numarası" maxlength="19" class="form-input">
+                            <input type="text" id="cc-name" placeholder="Ad Soyad" class="form-input uppercase">
+                            <div class="grid grid-cols-2 gap-4">
+                                <input type="text" placeholder="AA/YY" class="form-input">
+                                <input type="text" placeholder="CVC" maxlength="3" class="form-input">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    try {
-        // 1. Adım: Sunucudan ödeme başlatmasını iste
-        const response = await fetch('/api/odeme-baslat', { 
-            method: 'POST', 
-            headers: {'Content-Type': 'application/json'}, 
-            body: JSON.stringify({ musteri, sepet, toplamTutar }) 
+            <div class="lg:col-span-1">
+                <div class="bg-white p-8 rounded-2xl shadow-lg sticky top-10">
+                    <h3 class="text-xl font-bold mb-6 border-b pb-4">Sipariş Özeti</h3>
+                    <div id="order-items" class="space-y-4 mb-6 max-h-60 overflow-y-auto"></div>
+                    
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="coupon-code" placeholder="Kupon Kodu" class="form-input uppercase text-xs">
+                        <button onclick="applyCoupon()" class="btn-apply">UYGULA</button>
+                    </div>
+                    <div id="discount-row" class="flex justify-between text-sm text-green-600 font-bold hidden mb-2"><span>İndirim</span><span>-0 TL</span></div>
+
+                    <div class="space-y-2 border-t pt-4 text-sm text-gray-600">
+                        <div class="flex justify-between"><span>Ara Toplam</span><span id="sub-total">0,00 TL</span></div>
+                        <div class="flex justify-between"><span>Kargo</span><span class="text-green-500">Ücretsiz</span></div>
+                    </div>
+                    <div class="flex justify-between text-xl font-bold text-gray-800 mt-4 pt-4 border-t border-dashed">
+                        <span>Toplam</span><span id="final-total" class="text-purple-600">0,00 TL</span>
+                    </div>
+
+                    <button onclick="completeOrder()" class="btn-pay mt-6 flex justify-center items-center gap-2">
+                        <i class="fas fa-lock"></i> GÜVENLE ÖDE
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sepet = JSON.parse(localStorage.getItem('pomelitaSepet')) || [];
+        const container = document.getElementById('order-items');
+        const finalTotalEl = document.getElementById('final-total');
+        const subTotalEl = document.getElementById('sub-total');
+        const ccNumber = document.getElementById('cc-number');
+        
+        let total = 0;
+        let discountRate = 0;
+
+        // Kart Numarası Formatlama
+        ccNumber.addEventListener('input', (e) => {
+            let v = e.target.value.replace(/\D/g, '').substring(0,16);
+            let f = v.match(/.{1,4}/g)?.join(' ') || '';
+            e.target.value = f;
+            document.getElementById('card-number-display').innerText = f || '#### #### #### ####';
         });
 
-        const data = await response.json();
-
-        // 2. Adım: Iyzico başarılıysa formu göster
-        if (data.status === 'success') {
-            // Sepeti temizle (veya ödeme başarılı olunca temizle)
-            // localStorage.removeItem('pomelitaSepet'); 
-            
-            // Sayfanın içeriğini Iyzico formuyla değiştir veya yönlendir
-            document.body.innerHTML = data.htmlContent; 
-            
-            // Eğer Iyzico scripti çalışmazsa (HTML içinde gelirse) manuel tetikle
-            // Genellikle Iyzico formu bir script tagi içerir, tarayıcı bunu çalıştırmayabilir.
-            // Bu yüzden en garantisi sunucudan gelen linke yönlendirmektir ama Iyzico form içeriği gönderir.
-            // Form içeriğindeki scriptleri çalıştırmak için:
-            const scripts = document.body.getElementsByTagName("script");
-            for (let i = 0; i < scripts.length; i++) {
-                eval(scripts[i].innerText);
-            }
-
+        // Sepeti Listeleme
+        if(sepet.length === 0) { 
+            container.innerHTML = '<p class="text-center text-gray-400">Sepetiniz boş.</p>'; 
         } else {
-            alert("Ödeme Başlatılamadı: " + data.message);
-            btn.innerHTML = originalText; 
-            btn.disabled = false;
+            container.innerHTML = sepet.map(item => {
+                let priceNum = parseFloat(item.price.replace('TL','').replace('.','').replace(',','.'));
+                if(isNaN(priceNum)) priceNum = 0;
+                total += priceNum * item.adet;
+                return `
+                <div class="flex gap-3 items-center">
+                    <img src="${item.img}" class="w-12 h-12 object-cover rounded border">
+                    <div class="flex-1">
+                        <h4 class="text-xs font-bold text-gray-800 line-clamp-1">${item.title}</h4>
+                        <p class="text-xs text-gray-500">${item.adet} Adet</p>
+                    </div>
+                    <span class="text-xs font-bold text-gray-700">${item.price}</span>
+                </div>`;
+            }).join('');
+        }
+        
+        function updateTotal() {
+            let discountedTotal = total;
+            if(discountRate > 0) {
+                const discountAmount = total * (discountRate / 100);
+                discountedTotal = total - discountAmount;
+                document.getElementById('discount-row').classList.remove('hidden');
+                document.getElementById('discount-row').children[1].innerText = `-${discountAmount.toLocaleString('tr-TR')} TL`;
+            }
+            subTotalEl.innerText = total.toLocaleString('tr-TR', {minimumFractionDigits: 2}) + ' TL';
+            finalTotalEl.innerText = discountedTotal.toLocaleString('tr-TR', {minimumFractionDigits: 2}) + ' TL';
+        }
+        updateTotal();
+
+        // Kupon Uygulama
+        async function applyCoupon() {
+            const code = document.getElementById('coupon-code').value.toUpperCase();
+            if(!code) return;
+            try {
+                const res = await fetch('/api/kuponlar');
+                const coupons = await res.json();
+                const validCoupon = coupons.find(c => c.kod === code);
+                if(validCoupon) {
+                    discountRate = parseInt(validCoupon.oran);
+                    alert(`%${discountRate} İndirim Uygulandı!`);
+                    updateTotal();
+                } else { alert("Geçersiz Kupon!"); }
+            } catch(e) { alert("Hata: Kupon kontrol edilemedi."); }
         }
 
-    } catch(e) { 
-        console.error(e);
-        alert("Sunucu hatası."); 
-        btn.innerHTML = originalText; 
-        btn.disabled = false; 
-    }
-}
+        // --- SİMÜLASYON ÖDEME FONKSİYONU ---
+        async function completeOrder() {
+            // 1. Sepet Kontrolü
+            if(sepet.length === 0) { alert("Sepetiniz boş!"); return; }
+            
+            // 2. Form Kontrolü
+            const musteri = { 
+                ad: document.getElementById('ad').value, 
+                soyad: document.getElementById('soyad').value, 
+                tel: document.getElementById('tel').value, 
+                adres: document.getElementById('adres').value,
+                il: document.getElementById('il').value,
+                email: document.getElementById('email').value 
+            };
+
+            if(!musteri.ad || !musteri.tel || !musteri.adres || !musteri.email) { 
+                alert("Lütfen adres ve iletişim bilgilerini eksiksiz doldurun."); return; 
+            }
+            
+            if(document.getElementById('cc-number').value.length < 19) { 
+                alert("Lütfen geçerli bir kart numarası girin."); return; 
+            }
+
+            // 3. Efekt Başlat (Butonu Kilitle)
+            const btn = document.querySelector('.btn-pay');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Bankaya Bağlanılıyor...'; 
+            btn.disabled = true;
+
+            // 4. Tutarı Hesapla
+            const toplamTutar = parseFloat(finalTotalEl.innerText.replace('TL','').replace('.','').replace(',','.'));
+
+            // 5. Sahte Bekleme Süresi (2 Saniye)
+            setTimeout(async () => {
+                try {
+                    // Veritabanına "Sipariş" olarak kaydet
+                    const res = await fetch('/api/siparisler', { 
+                        method: 'POST', 
+                        headers: {'Content-Type': 'application/json'}, 
+                        body: JSON.stringify({ 
+                            musteri, 
+                            sepet, 
+                            toplamTutar, 
+                            odemeYontemi: 'Kredi Kartı (Simülasyon)' 
+                        }) 
+                    });
+
+                    if(res.ok) { 
+                        // Başarılı Oldu
+                        btn.innerHTML = '<i class="fas fa-check"></i> Ödeme Onaylandı!';
+                        btn.classList.remove('bg-[#98DDCA]'); 
+                        btn.classList.add('bg-green-500'); // Butonu yeşil yap
+                        
+                        setTimeout(() => {
+                            alert("✅ Siparişiniz başarıyla alındı! Teşekkürler."); 
+                            localStorage.removeItem('pomelitaSepet'); // Sepeti boşalt
+                            window.location.href = 'index.html'; // Ana sayfaya dön
+                        }, 1000);
+                    } 
+                    else { throw new Error("Kayıt hatası"); }
+
+                } catch(e) { 
+                    console.error(e);
+                    alert("Bir hata oluştu, lütfen tekrar deneyin."); 
+                    btn.innerHTML = originalText; 
+                    btn.disabled = false; 
+                }
+            }, 2000); // 2000 milisaniye = 2 saniye bekle
+        }
+    </script>
+</body>
+</html>
