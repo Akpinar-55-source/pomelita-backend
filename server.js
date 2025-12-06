@@ -186,7 +186,86 @@ app.get('/api/ayarlar', async (req, res) => {
 app.post('/api/ayarlar', async (req, res) => { 
     try { await Ayar.findOneAndUpdate({}, req.body, { upsert: true, new: true }); res.json({message:'OK'}); } catch(e) { res.status(500).json({ error: 'Hata' }); } 
 });
+// --- IYZICO ÖDEME SİSTEMİ ---
+const Iyzipay = require('iyzipay');
 
+// Bu anahtarları Iyzico panelinden alacaksın (Şimdilik test anahtarları)
+const iyzipay = new Iyzipay({
+    apiKey: process.env.IYZICO_API_KEY || 'sandbox-api-key',
+    secretKey: process.env.IYZICO_SECRET_KEY || 'sandbox-secret-key',
+    uri: 'https://sandbox-api.iyzipay.com' // Gerçek satışta burası değişir
+});
+
+app.post('/api/odeme-baslat', async (req, res) => {
+    const { sepet, toplamTutar, kullanici } = req.body;
+
+    // Sepetteki ürünleri Iyzico formatına çevir
+    const basketItems = sepet.map(item => ({
+        id: item._id || 'random-id',
+        name: item.title,
+        category1: item.category,
+        itemType: Iyzipay.ITEM_TYPE.PHYSICAL,
+        price: item.price
+    }));
+
+    const request = {
+        locale: Iyzipay.LOCALE.TR,
+        conversationId: '123456789',
+        price: toplamTutar,
+        paidPrice: toplamTutar,
+        currency: Iyzipay.CURRENCY.TRY,
+        basketId: 'B67832',
+        paymentGroup: Iyzipay.PAYMENT_GROUP.PRODUCT,
+        callbackUrl: 'https://pomelita.onrender.com/api/odeme-sonuc', // Ödeme bitince buraya döner
+        enabledInstallments: [2, 3, 6, 9],
+        buyer: {
+            id: '123',
+            name: kullanici.ad || 'Misafir',
+            surname: kullanici.soyad || 'Kullanıcı',
+            gsmNumber: '+905350000000',
+            email: kullanici.email || 'email@email.com',
+            identityNumber: '74300864791',
+            lastLoginDate: '2015-10-05 12:43:35',
+            registrationAddress: 'Adres mah. sok.',
+            ip: req.ip,
+            city: 'Istanbul',
+            country: 'Turkey',
+            zipCode: '34732'
+        },
+        shippingAddress: {
+            contactName: kullanici.ad + ' ' + kullanici.soyad,
+            city: 'Istanbul',
+            country: 'Turkey',
+            address: 'Adres mah. sok.',
+            zipCode: '34742'
+        },
+        billingAddress: {
+            contactName: kullanici.ad + ' ' + kullanici.soyad,
+            city: 'Istanbul',
+            country: 'Turkey',
+            address: 'Adres mah. sok.',
+            zipCode: '34742'
+        },
+        basketItems: basketItems
+    };
+
+    // Iyzico'dan ödeme sayfasını iste
+    iyzipay.checkoutFormInitialize.create(request, function (err, result) {
+        if (err || result.status !== 'success') {
+            res.json({ status: 'error', message: result.errorMessage });
+        } else {
+            // Başarılıysa bize bir HTML Form içeriği döner
+            res.json({ status: 'success', htmlContent: result.checkoutFormContent });
+        }
+    });
+});
+
+// Ödeme Başarılı Olursa Dönülen Yer
+app.post('/api/odeme-sonuc', (req, res) => {
+    // Burada siparişi veritabanına "Ödendi" olarak kaydetmen gerekir.
+    // Şimdilik sadece teşekkür sayfasına yönlendirelim.
+    res.redirect('/'); 
+});
 app.listen(3000, () => {
     console.log("------------------------------------------------");
     console.log("🚀 SUNUCU ÇALIŞIYOR: http://localhost:3000");
