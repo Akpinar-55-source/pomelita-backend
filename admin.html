@@ -4,186 +4,249 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pomelita | Yönetim Paneli</title>
-    
-    <script>
-        // ŞİFREYİ BURADAN DEĞİŞTİREBİLİRSİN
-        var yoneticiSifresi = "1234"; 
-
-        if (sessionStorage.getItem('girisYapildi') !== 'evet') {
-            var girilen = prompt("🔒 Bu sayfaya sadece yöneticiler girebilir. Şifre nedir?");
-            
-            if (girilen === yoneticiSifresi) {
-                sessionStorage.setItem('girisYapildi', 'evet'); // Doğru bildi, içeri al
-            } else {
-                alert("Hatalı şifre! Ana sayfaya yönlendiriliyorsunuz...");
-                window.location.href = "/"; // Yanlışsa kov
-            }
-        }
-    </script>
-
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sacramento&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { background-color: #F3F4F6; font-family: 'Quicksand', sans-serif; color: #374151; }
         .brand-font { font-family: 'Sacramento', cursive; }
+        
+        /* GİRİŞ EKRANI EFEKTLERİ */
+        #login-overlay {
+            background: rgba(15, 23, 42, 0.8); /* Koyu arka plan */
+            backdrop-filter: blur(10px); /* Buzlu cam efekti */
+            transition: all 0.5s ease-in-out;
+        }
+        .login-box {
+            animation: dropIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes dropIn {
+            0% { transform: scale(0.5) translateY(-50px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        .shake { animation: shake 0.3s ease-in-out; border-color: #ef4444 !important; }
+
+        /* ANA TASARIM */
         .sidebar { width: 260px; background: white; height: 100vh; position: fixed; padding: 30px; box-shadow: 2px 0 20px rgba(0,0,0,0.05); overflow-y: auto; }
-        .main-content { margin-left: 260px; padding: 40px; }
+        .main-content { margin-left: 260px; padding: 40px; transition: 0.3s; filter: blur(0px); }
         .menu-item { display: block; padding: 12px 15px; margin-bottom: 10px; border-radius: 10px; font-weight: 700; color: #6B7280; transition: 0.3s; cursor: pointer; }
         .menu-item:hover { background-color: #F9FAFB; color: #9F8CC2; }
         .menu-item.active { background-color: #F4F0FF; color: #9F8CC2; }
         .section { display: none; }
         .section.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-        .form-input { width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; margin-bottom: 15px; outline: none; }
+        .form-input { width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; margin-bottom: 15px; outline: none; transition: 0.3s; }
+        .form-input:focus { border-color: #9F8CC2; box-shadow: 0 0 0 3px rgba(159, 140, 194, 0.2); }
         .form-textarea { width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; margin-bottom: 15px; outline: none; height: 100px; resize: none; font-family: 'Quicksand', sans-serif; }
         .btn-save { background-color: #98DDCA; color: white; padding: 12px; border-radius: 8px; font-weight: 700; width: 100%; transition: 0.3s; cursor: pointer; }
-        .btn-save:hover { opacity: 0.9; }
-        .btn-save:disabled { background-color: #ccc; cursor: not-allowed; }
+        .btn-save:hover { opacity: 0.9; transform: translateY(-2px); }
+        .btn-save:disabled { background-color: #ccc; cursor: not-allowed; transform: none; }
         .settings-group { background: white; padding: 25px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #E5E7EB; }
         .settings-title { font-weight: 700; color: #9F8CC2; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; font-size: 1.1rem; } 
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <div class="text-center mb-12">
-            <h1 class="brand-font text-5xl text-[#9F8CC2]">Pomelita</h1>
-            <p class="text-xs text-gray-400 tracking-widest mt-2">YÖNETİM V2.0</p>
+    <div id="login-overlay" class="fixed inset-0 z-50 flex items-center justify-center">
+        <div class="login-box bg-white p-10 rounded-3xl shadow-2xl w-96 text-center relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-purple-100 rounded-full blur-2xl opacity-50"></div>
+            <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-green-100 rounded-full blur-2xl opacity-50"></div>
+
+            <div class="relative z-10">
+                <h1 class="brand-font text-6xl text-[#9F8CC2] mb-2">Pomelita</h1>
+                <p class="text-gray-400 text-xs tracking-[0.3em] font-bold mb-8 uppercase">Yönetici Girişi</p>
+                
+                <div class="mb-6 relative">
+                    <i class="fas fa-lock absolute left-4 top-4 text-gray-300"></i>
+                    <input type="password" id="adminPass" placeholder="Şifreniz" 
+                        class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-purple-400 focus:bg-white transition-all text-gray-700 font-bold tracking-widest"
+                        onkeypress="if(event.key === 'Enter') checkLogin()">
+                </div>
+
+                <button onclick="checkLogin()" class="w-full bg-gradient-to-r from-[#9F8CC2] to-[#B39CD0] hover:from-[#8E7BB0] hover:to-[#A28BC0] text-white font-bold py-3 rounded-xl shadow-lg transform transition active:scale-95">
+                    GİRİŞ YAP <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+
+                <p id="errorMsg" class="text-red-500 text-xs font-bold mt-4 opacity-0 transition">Hatalı şifre, tekrar dene!</p>
+            </div>
         </div>
-        <nav>
-            <div class="menu-item active" onclick="switchTab('dashboard', this)"><i class="fas fa-chart-pie mr-3"></i> Özet (Dashboard)</div>
-            <div class="menu-item" onclick="switchTab('siparisler', this)"><i class="fas fa-shopping-basket mr-3"></i> Siparişler</div>
-            <div class="menu-item" onclick="switchTab('urunler', this)"><i class="fas fa-box-open mr-3"></i> Ürünler & Stok</div>
-            <div class="menu-item" onclick="switchTab('kuponlar', this)"><i class="fas fa-ticket-alt mr-3"></i> İndirim Kuponları</div>
-            <div class="menu-item" onclick="switchTab('mesajlar', this)"><i class="fas fa-envelope mr-3"></i> Gelen Mesajlar</div>
-            <div class="menu-item" onclick="switchTab('ayarlar', this)"><i class="fas fa-cog mr-3"></i> Site Ayarları</div>
-            <div class="border-t my-4"></div>
-            <a href="/" class="menu-item"><i class="fas fa-external-link-alt mr-3"></i> Siteye Git</a>
-        </nav>
     </div>
 
-    <div class="main-content">
-        
-        <div id="tab-dashboard" class="section active">
-            <h2 class="text-3xl font-bold text-gray-800 mb-8">Hoş Geldiniz, Patron! 👋</h2>
-            <div class="grid grid-cols-4 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center justify-between"><div class="bg-green-100 text-green-600 p-3 rounded-xl text-2xl"><i class="fas fa-lira-sign"></i></div><div><p class="text-gray-400 text-xs font-bold uppercase">Toplam Ciro</p><h3 id="d-ciro" class="text-2xl font-bold">0 TL</h3></div></div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center justify-between"><div class="bg-blue-100 text-blue-600 p-3 rounded-xl text-2xl"><i class="fas fa-shopping-bag"></i></div><div><p class="text-gray-400 text-xs font-bold uppercase">Toplam Sipariş</p><h3 id="d-siparis" class="text-2xl font-bold">0</h3></div></div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center justify-between"><div class="bg-purple-100 text-purple-600 p-3 rounded-xl text-2xl"><i class="fas fa-gem"></i></div><div><p class="text-gray-400 text-xs font-bold uppercase">Toplam Ürün</p><h3 id="d-urun" class="text-2xl font-bold">0</h3></div></div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center justify-between"><div class="bg-red-100 text-red-600 p-3 rounded-xl text-2xl"><i class="fas fa-envelope"></i></div><div><p class="text-gray-400 text-xs font-bold uppercase">Mesajlar</p><h3 id="d-mesaj" class="text-2xl font-bold">0</h3></div></div>
+    <div id="app-container" style="display: none;">
+        <div class="sidebar">
+            <div class="text-center mb-12">
+                <h1 class="brand-font text-5xl text-[#9F8CC2]">Pomelita</h1>
+                <p class="text-xs text-gray-400 tracking-widest mt-2">YÖNETİM V2.0</p>
             </div>
-            <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-xl text-yellow-700 hidden" id="stok-uyari">
-                <i class="fas fa-exclamation-triangle mr-2"></i> <b>Dikkat:</b> Bazı ürünlerin stoğu 5'in altına düştü!
-            </div>
+            <nav>
+                <div class="menu-item active" onclick="switchTab('dashboard', this)"><i class="fas fa-chart-pie mr-3"></i> Özet (Dashboard)</div>
+                <div class="menu-item" onclick="switchTab('siparisler', this)"><i class="fas fa-shopping-basket mr-3"></i> Siparişler</div>
+                <div class="menu-item" onclick="switchTab('urunler', this)"><i class="fas fa-box-open mr-3"></i> Ürünler & Stok</div>
+                <div class="menu-item" onclick="switchTab('kuponlar', this)"><i class="fas fa-ticket-alt mr-3"></i> İndirim Kuponları</div>
+                <div class="menu-item" onclick="switchTab('mesajlar', this)"><i class="fas fa-envelope mr-3"></i> Gelen Mesajlar</div>
+                <div class="menu-item" onclick="switchTab('ayarlar', this)"><i class="fas fa-cog mr-3"></i> Site Ayarları</div>
+                <div class="border-t my-4"></div>
+                <a href="/" class="menu-item"><i class="fas fa-external-link-alt mr-3"></i> Siteye Git</a>
+            </nav>
         </div>
 
-        <div id="tab-siparisler" class="section">
-            <h2 class="text-3xl font-bold text-gray-800 mb-8">Siparişler <span id="order-badge" class="bg-red-500 text-white text-sm px-2 py-1 rounded-full">0</span></h2>
-            <div id="orderList" class="space-y-4"></div>
-        </div>
+        <div class="main-content">
+            
+            <div id="tab-dashboard" class="section active">
+                <h2 class="text-3xl font-bold text-gray-800 mb-8">Hoş Geldiniz, Patron! 👋</h2>
+                <div class="grid grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center justify-between"><div class="bg-green-100 text-green-600 p-3 rounded-xl text-2xl"><i class="fas fa-lira-sign"></i></div><div><p class="text-gray-400 text-xs font-bold uppercase">Toplam Ciro</p><h3 id="d-ciro" class="text-2xl font-bold">0 TL</h3></div></div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center justify-between"><div class="bg-blue-100 text-blue-600 p-3 rounded-xl text-2xl"><i class="fas fa-shopping-bag"></i></div><div><p class="text-gray-400 text-xs font-bold uppercase">Toplam Sipariş</p><h3 id="d-siparis" class="text-2xl font-bold">0</h3></div></div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center justify-between"><div class="bg-purple-100 text-purple-600 p-3 rounded-xl text-2xl"><i class="fas fa-gem"></i></div><div><p class="text-gray-400 text-xs font-bold uppercase">Toplam Ürün</p><h3 id="d-urun" class="text-2xl font-bold">0</h3></div></div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center justify-between"><div class="bg-red-100 text-red-600 p-3 rounded-xl text-2xl"><i class="fas fa-envelope"></i></div><div><p class="text-gray-400 text-xs font-bold uppercase">Mesajlar</p><h3 id="d-mesaj" class="text-2xl font-bold">0</h3></div></div>
+                </div>
+                <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-xl text-yellow-700 hidden" id="stok-uyari">
+                    <i class="fas fa-exclamation-triangle mr-2"></i> <b>Dikkat:</b> Bazı ürünlerin stoğu 5'in altına düştü!
+                </div>
+            </div>
 
-        <div id="tab-urunler" class="section">
-            <div class="grid lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm">
-                    <h3 class="text-lg font-bold mb-4 text-[#9F8CC2]">Ürün Ekle</h3>
-                    <form id="addForm">
-                        <label class="text-xs font-bold text-gray-400 uppercase">Ürün Adı</label>
-                        <input type="text" id="pName" class="form-input" required>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div><label class="text-xs font-bold text-gray-400 uppercase">Fiyat</label><input type="text" id="pPrice" class="form-input" placeholder="599 TL" required></div>
-                            <div><label class="text-xs font-bold text-gray-400 uppercase">Stok</label><input type="number" id="pStock" class="form-input" placeholder="Adet" required></div>
+            <div id="tab-siparisler" class="section">
+                <h2 class="text-3xl font-bold text-gray-800 mb-8">Siparişler <span id="order-badge" class="bg-red-500 text-white text-sm px-2 py-1 rounded-full">0</span></h2>
+                <div id="orderList" class="space-y-4"></div>
+            </div>
+
+            <div id="tab-urunler" class="section">
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm">
+                        <h3 class="text-lg font-bold mb-4 text-[#9F8CC2]">Ürün Ekle</h3>
+                        <form id="addForm">
+                            <label class="text-xs font-bold text-gray-400 uppercase">Ürün Adı</label>
+                            <input type="text" id="pName" class="form-input" required>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div><label class="text-xs font-bold text-gray-400 uppercase">Fiyat</label><input type="text" id="pPrice" class="form-input" placeholder="599 TL" required></div>
+                                <div><label class="text-xs font-bold text-gray-400 uppercase">Stok</label><input type="number" id="pStock" class="form-input" placeholder="Adet" required></div>
+                            </div>
+                            <label class="text-xs font-bold text-gray-400 uppercase">Kategori</label>
+                            <select id="pCat" class="form-input">
+                                <option value="takilar">Takılar</option>
+                                <option value="kisisel">✨ Kişiselleştirilmiş Ürünler</option>
+                                <option value="anneler">Anneler Günü</option>
+                                <option value="sevgililer">Sevgililer Günü</option>
+                                <option value="vazolar">Vazolar</option>
+                                <option value="standlar">Standlar</option>
+                                <option value="atolye">Atölye</option>
+                            </select>
+                            <label class="text-xs font-bold text-purple-500 uppercase">SEO Açıklaması</label>
+                            <textarea id="pDesc" class="form-textarea" placeholder="Ürün açıklaması..."></textarea>
+                            <label class="text-xs font-bold text-gray-400 uppercase">Görsel Yolu (Link)</label>
+                            <input type="text" id="pImg" class="form-input" placeholder="https://..." required>
+                            <button type="submit" class="btn-save">KAYDET</button>
+                        </form>
+                    </div>
+                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm">
+                        <table class="w-full text-left">
+                            <thead><tr class="text-purple-400 border-b"><th class="pb-2">Ürün</th><th class="pb-2">Stok</th><th class="pb-2">Sil</th></tr></thead>
+                            <tbody id="productList"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-kuponlar" class="section">
+                <h2 class="text-3xl font-bold text-gray-800 mb-8">Kuponlar</h2>
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm">
+                        <form id="couponForm">
+                            <label class="text-xs font-bold text-gray-400 uppercase">Kod</label>
+                            <input type="text" id="cCode" class="form-input uppercase" required>
+                            <label class="text-xs font-bold text-gray-400 uppercase">Oran (%)</label>
+                            <input type="number" id="cRate" class="form-input" required>
+                            <button type="submit" class="btn-save bg-purple-400 hover:bg-purple-500">EKLE</button>
+                        </form>
+                    </div>
+                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm">
+                        <table class="w-full text-left">
+                            <thead><tr class="text-purple-400 border-b"><th class="pb-2">Kod</th><th class="pb-2">Oran</th><th class="pb-2">İşlem</th></tr></thead>
+                            <tbody id="couponList"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-mesajlar" class="section">
+                <h2 class="text-3xl font-bold text-gray-800 mb-8">Gelen Mesajlar</h2>
+                <div id="messageList" class="space-y-4"></div>
+            </div>
+
+            <div id="tab-ayarlar" class="section">
+                <h2 class="text-3xl font-bold text-gray-800 mb-8">Site Ayarları</h2>
+                <form id="settingsForm">
+                    <div class="grid lg:grid-cols-2 gap-8">
+                        <div class="settings-group">
+                            <h3 class="settings-title"><i class="fas fa-address-card"></i> İletişim</h3>
+                            <label class="text-xs font-bold text-gray-400 uppercase">Telefon</label><input type="text" id="setTel" class="form-input">
+                            <label class="text-xs font-bold text-gray-400 uppercase">E-Posta</label><input type="email" id="setEmail" class="form-input">
+                            <label class="text-xs font-bold text-gray-400 uppercase">Adres</label><textarea id="setAddress" class="form-textarea" style="height:80px;"></textarea>
                         </div>
-                        <label class="text-xs font-bold text-gray-400 uppercase">Kategori</label>
-                        <select id="pCat" class="form-input">
-                            <option value="takilar">Takılar</option>
-                            <option value="kisisel">✨ Kişiselleştirilmiş Ürünler</option>
-                            <option value="anneler">Anneler Günü</option>
-                            <option value="sevgililer">Sevgililer Günü</option>
-                            <option value="vazolar">Vazolar</option>
-                            <option value="standlar">Standlar</option>
-                            <option value="atolye">Atölye</option>
-                        </select>
-                        <label class="text-xs font-bold text-purple-500 uppercase">SEO Açıklaması</label>
-                        <textarea id="pDesc" class="form-textarea" placeholder="Ürün açıklaması..."></textarea>
-                        <label class="text-xs font-bold text-gray-400 uppercase">Görsel Yolu (Link)</label>
-                        <input type="text" id="pImg" class="form-input" placeholder="https://..." required>
-                        <button type="submit" class="btn-save">KAYDET</button>
-                    </form>
-                </div>
-                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm">
-                    <table class="w-full text-left">
-                        <thead><tr class="text-purple-400 border-b"><th class="pb-2">Ürün</th><th class="pb-2">Stok</th><th class="pb-2">Sil</th></tr></thead>
-                        <tbody id="productList"></tbody>
-                    </table>
-                </div>
+                        <div class="settings-group border-purple-200 bg-purple-50">
+                            <h3 class="settings-title text-purple-600"><i class="fab fa-google"></i> Google & Analiz</h3>
+                            <label class="text-xs font-bold text-gray-600 uppercase">Google Analytics ID</label><input type="text" id="setAnalytics" class="form-input">
+                            <label class="text-xs font-bold text-gray-600 uppercase">Google Ads ID</label><input type="text" id="setAds" class="form-input">
+                        </div>
+                        <div class="settings-group">
+                            <h3 class="settings-title"><i class="fas fa-share-alt"></i> Sosyal Medya</h3>
+                            <label class="text-xs font-bold text-gray-400 uppercase">Instagram</label><input type="text" id="setInsta" class="form-input">
+                            <label class="text-xs font-bold text-gray-400 uppercase">Facebook</label><input type="text" id="setFace" class="form-input">
+                        </div>
+                    </div>
+                    <div class="fixed bottom-10 right-10">
+                        <button type="submit" class="bg-green-500 text-white px-8 py-4 rounded-full font-bold shadow-xl hover:bg-green-600 transition flex items-center gap-2"><i class="fas fa-save"></i> AYARLARI KAYDET</button>
+                    </div>
+                </form>
             </div>
-        </div>
 
-        <div id="tab-kuponlar" class="section">
-            <h2 class="text-3xl font-bold text-gray-800 mb-8">Kuponlar</h2>
-            <div class="grid lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm">
-                    <form id="couponForm">
-                        <label class="text-xs font-bold text-gray-400 uppercase">Kod</label>
-                        <input type="text" id="cCode" class="form-input uppercase" required>
-                        <label class="text-xs font-bold text-gray-400 uppercase">Oran (%)</label>
-                        <input type="number" id="cRate" class="form-input" required>
-                        <button type="submit" class="btn-save bg-purple-400 hover:bg-purple-500">EKLE</button>
-                    </form>
-                </div>
-                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm">
-                    <table class="w-full text-left">
-                        <thead><tr class="text-purple-400 border-b"><th class="pb-2">Kod</th><th class="pb-2">Oran</th><th class="pb-2">İşlem</th></tr></thead>
-                        <tbody id="couponList"></tbody>
-                    </table>
-                </div>
-            </div>
         </div>
-
-        <div id="tab-mesajlar" class="section">
-            <h2 class="text-3xl font-bold text-gray-800 mb-8">Gelen Mesajlar</h2>
-            <div id="messageList" class="space-y-4"></div>
-        </div>
-
-        <div id="tab-ayarlar" class="section">
-            <h2 class="text-3xl font-bold text-gray-800 mb-8">Site Ayarları</h2>
-            <form id="settingsForm">
-                <div class="grid lg:grid-cols-2 gap-8">
-                    <div class="settings-group">
-                        <h3 class="settings-title"><i class="fas fa-address-card"></i> İletişim</h3>
-                        <label class="text-xs font-bold text-gray-400 uppercase">Telefon</label><input type="text" id="setTel" class="form-input">
-                        <label class="text-xs font-bold text-gray-400 uppercase">E-Posta</label><input type="email" id="setEmail" class="form-input">
-                        <label class="text-xs font-bold text-gray-400 uppercase">Adres</label><textarea id="setAddress" class="form-textarea" style="height:80px;"></textarea>
-                    </div>
-                    <div class="settings-group border-purple-200 bg-purple-50">
-                        <h3 class="settings-title text-purple-600"><i class="fab fa-google"></i> Google & Analiz</h3>
-                        <label class="text-xs font-bold text-gray-600 uppercase">Google Analytics ID</label><input type="text" id="setAnalytics" class="form-input">
-                        <label class="text-xs font-bold text-gray-600 uppercase">Google Ads ID</label><input type="text" id="setAds" class="form-input">
-                    </div>
-                    <div class="settings-group">
-                        <h3 class="settings-title"><i class="fas fa-share-alt"></i> Sosyal Medya</h3>
-                        <label class="text-xs font-bold text-gray-400 uppercase">Instagram</label><input type="text" id="setInsta" class="form-input">
-                        <label class="text-xs font-bold text-gray-400 uppercase">Facebook</label><input type="text" id="setFace" class="form-input">
-                    </div>
-                </div>
-                <div class="fixed bottom-10 right-10">
-                    <button type="submit" class="bg-green-500 text-white px-8 py-4 rounded-full font-bold shadow-xl hover:bg-green-600 transition flex items-center gap-2"><i class="fas fa-save"></i> AYARLARI KAYDET</button>
-                </div>
-            </form>
-        </div>
-
     </div>
 
     <script>
+        // --- GİRİŞ KONTROL SİSTEMİ ---
+        const SIFRE = "HamitKudur"; // 🔥 SENİN ŞİFREN BURADA
+
+        function checkLogin() {
+            const input = document.getElementById('adminPass');
+            const errorMsg = document.getElementById('errorMsg');
+            
+            if (input.value === SIFRE) {
+                // Şifre Doğru:
+                sessionStorage.setItem('girisYapildi', 'evet');
+                document.getElementById('login-overlay').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('app-container').style.display = 'block';
+                }, 500);
+            } else {
+                // Şifre Yanlış:
+                input.classList.add('shake');
+                input.style.borderColor = '#ef4444';
+                errorMsg.style.opacity = '1';
+                setTimeout(() => input.classList.remove('shake'), 300);
+            }
+        }
+
+        // Sayfa yüklendiğinde daha önce girmiş mi bak
+        window.onload = function() {
+            if (sessionStorage.getItem('girisYapildi') === 'evet') {
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('app-container').style.display = 'block';
+            }
+        };
+
         // --- SEKME DEĞİŞTİRME ---
         function switchTab(tabName, element) {
             document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
-            
             document.getElementById('tab-' + tabName).classList.add('active');
             if(element) element.classList.add('active');
-            
             if (tabName === 'dashboard') loadDashboard();
             if (tabName === 'siparisler') loadOrders();
             if (tabName === 'urunler') loadProducts();
@@ -245,14 +308,17 @@
             try {
                 const response = await fetch('/api/urunler', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(p)});
                 
-                if(!response.ok) throw new Error("Sunucu Hatası: " + response.status);
+                if(!response.ok) {
+                    const text = await response.text();
+                    throw new Error(text || "Sunucu Hatası");
+                }
 
                 e.target.reset(); 
                 alert('✅ Eklendi'); 
                 loadProducts();
             } catch(err) { 
                 console.error(err);
-                alert('❌ Hata! Render şifrenizi veya bağlantınızı kontrol edin.'); 
+                alert('❌ HATA: Ürün eklenemedi! Render panelinden şifreni kontrol et.'); 
             } finally { 
                 btn.innerText = eskiYazi; btn.disabled = false; 
             }
@@ -272,12 +338,10 @@
                 const data = await res.json();
                 document.getElementById('order-badge').innerText = data.length || 0;
                 const container = document.getElementById('orderList');
-                
                 if(!data || data.length === 0) {
                     container.innerHTML = '<div class="text-center py-10 text-gray-400">Sipariş yok.</div>';
                     return;
                 }
-
                 container.innerHTML = data.map(o => {
                     let statusColor = 'bg-gray-100 text-gray-600';
                     if(o.durum === 'Kargolandı') statusColor = 'bg-blue-100 text-blue-600';
@@ -290,7 +354,6 @@
                             <div>
                                 <h4 class="font-bold text-lg text-purple-600">${o.musteri?.ad} ${o.musteri?.soyad}</h4>
                                 <p class="text-xs text-gray-400"><i class="far fa-clock"></i> ${o.tarih}</p>
-                                <p class="text-xs text-gray-500 mt-1"><i class="fas fa-map-marker-alt"></i> ${o.musteri?.il} / ${o.musteri?.tel}</p>
                             </div>
                             <div class="text-right">
                                 <div class="font-bold text-xl text-green-600 mb-2">${(o.toplamTutar||0).toLocaleString('tr-TR')} TL</div>
@@ -410,9 +473,6 @@
             await fetch('/api/ayarlar', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(s)});
             alert('Ayarlar Kaydedildi!');
         });
-
-        // Başlangıç
-        loadDashboard();
     </script>
 </body>
 </html>
