@@ -1,0 +1,161 @@
+[
+  {
+    "musteri": {
+      "ad": "asadf",
+      "soyad": "AKPINAR",
+      "tel": "0546 630 04 97",
+      "adres": "a",
+      "il": "bURSA"
+    },
+    "sepet": [
+      {
+        "id": "1764524007337",
+        "title": "Muhammed beyin tasarımı 2",
+        "price": "1500000",
+        "img": "isgörselleri/png",
+        "adet": 1
+      }
+    ],
+    "toplamTutar": 1500,
+    "odemeYontemi": "Kredi Kartı",
+    "id": "1764528402992",
+    "tarih": "30.11.2025 21:46:42"
+  },
+  {
+    "musteri": {
+      "ad": "Mustafa",
+      "soyad": "AKPINAR",
+      "tel": "0546 630 04 97",
+      "adres": "sdgfsfdgh",
+      "il": "bURSA"
+    },
+    "sepet": [
+      {
+        "id": "1764524007337",
+        "title": "Muhammed beyin tasarımı 2",
+        "price": "1500000",
+        "img": "isgörselleri/png",
+        "adet": 1
+      }
+    ],
+    "toplamTutar": 1500,
+    "odemeYontemi": "Kredi Kartı",
+    "id": "1764527434636",
+    "tarih": "30.11.2025 21:30:34"
+  },
+  {
+    "musteri": {
+      "ad": "asadf",
+      "soyad": "sdfsdaf",
+      "tel": "sadfsadf",
+      "adres": "sadfsdafsdaf",
+      "il": "sadfasd"
+    },
+    "sepet": [
+      {
+        "id": "1764524007337",
+        "title": "Muhammed beyin tasarımı 2",
+        "price": "1500000",
+        "img": "isgörselleri/png",
+        "adet": 1
+      }
+    ],
+    "toplamTutar": 1500,
+    "odemeYontemi": "Kredi Kartı",
+    "id": "1764527098618",
+    "tarih": "30.11.2025 21:24:58"
+  },
+  {
+    "musteri": {
+      "ad": "Mustafa",
+      "soyad": "AKPINAR",
+      "tel": "0546 630 04 97",
+      "adres": "saa",
+      "il": "aa"
+    },
+    "sepet": [
+      {
+        "id": "1764524007337",
+        "title": "Muhammed beyin tasarımı 2",
+        "price": "1500000",
+        "img": "isgörselleri/png",
+        "adet": 1
+      }
+    ],
+    "toplamTutar": 1500,
+    "odemeYontemi": "Kredi Kartı",
+    "id": "1764524055157",
+    "tarih": "30.11.2025 20:34:15",
+    "durum": "Yeni Sipariş"
+  },
+  {
+    "musteri": {
+      "ad": "Mustafa",
+      "soyad": "AKPINAR",
+      "tel": "0546 630 04 97",
+      "adres": "asdf",
+      "il": "asdf"
+    },
+    "sepet": [
+      {
+        "id": "1764513263254",
+        "title": "Muhammed beyin tasarımı 2",
+        "price": "1500000",
+        "img": "isgörselleri/png",
+        "adet": 2
+      }
+    ],
+    "toplamTutar": 3000,
+    "odemeYontemi": "Kredi Kartı",
+    "id": "1764515744711",
+    "tarih": "30.11.2025 18:15:44",
+    "durum": "Yeni Sipariş"
+  },
+  {
+    "musteri": {
+      "ad": "Mustafa",
+      "soyad": "AKPINAR",
+      "tel": "0546 630 04 97",
+      "adres": "b",
+      "il": "bURSA"
+    },
+    "sepet": [
+      {
+        "id": "1764513263254",
+        "title": "Muhammed beyin tasarımı 2",
+        "price": "1500000",
+        "img": "isgörselleri/png",
+        "adet": 1
+      }
+    ],
+    "toplamTutar": 1500000,
+    "odemeYontemi": "Kredi Kartı (Online)",
+    "id": "1764513973639",
+    "tarih": "30.11.2025 17:46:13",
+    "durum": "Yeni Sipariş"
+  },
+  {
+    "musteri": {
+      "ad": "Mustafa",
+      "soyad": "AKPINAR",
+      "email": "A4K",
+      "tel": "0546 630 04 97",
+      "adres": "Yenikent",
+      "il": "bURSA",
+      "ilce": "OSMANGAZİ"
+    },
+    "sepet": [
+      {
+        "id": "1764508943141",
+        "title": "Muhammed beyin tasarımı",
+        "price": "1500000",
+        "img": "isgörselleri/png",
+        "adet": 2
+      }
+    ],
+    "toplamTutar": 3000000,
+    "id": "1764512219504",
+    "tarih": "30.11.2025 17:16:59",
+    "durum": "Yeni Sipariş"
+  }
+]

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomelita | Koleksiyon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sacramento&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-body: #ffffff; --color-purple: #9F8CC2; --color-mint: #98DDCA; --text-dark: #4a4a4a; --bg-soft-purple: #F4F0FF; }
+        body { font-family: 'Quicksand', sans-serif; color: var(--text-dark); margin:0; padding:0; overflow-x: hidden; }
+        .brand-font { font-family: 'Sacramento', cursive; font-weight: 400; }
+        .btn-add { width: 100%; padding: 10px; background-color: var(--color-mint); color: white; border-radius: 10px; font-weight: 700; transition: 0.3s; border: 2px solid var(--color-mint); }
+        .btn-add:hover { background-color: white; color: var(--color-mint); }
+        .product-card { transition: 0.3s; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); background: white; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .nav-link-effect { display: inline-block; position: relative; color: var(--text-dark); text-decoration: none; transition: 0.3s; font-weight: 600; }
+        .nav-link-effect::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 3px; bottom: -2px; left: 0; background-color: var(--color-purple); transform-origin: bottom right; transition: transform 0.3s ease-out; border-radius: 2px; }
+        .nav-link-effect:hover::after { transform: scaleX(1); transform-origin: bottom left; }
+        .nav-link-effect:hover { color: var(--color-purple); transform: scale(1.05); }
+    </style>
+</head>
+<body>
+
+    <nav class="fixed top-0 w-full bg-white/95 z-50 border-b border-gray-100 px-8 py-4 flex justify-between items-center backdrop-blur-md">
+        <a href="index.html" class="flex items-center gap-2 font-bold nav-link-effect"><i class="fas fa-arrow-left"></i> Ana Sayfa</a>
+        <div class="text-3xl brand-font" style="color: var(--color-purple);">Pomelita</div>
+        <div class="w-20"></div> 
+    </nav>
+
+    <header class="pt-32 pb-10 text-center bg-purple-50">
+        <h1 id="cat-title" class="brand-font text-6xl mb-2 capitalize" style="color: var(--color-purple);">Koleksiyon</h1>
+        <p class="text-gray-500 uppercase tracking-widest text-sm">ÖZEL SEÇKİ</p>
+    </header>
+
+    <section class="py-16 px-6 max-w-7xl mx-auto min-h-screen">
+        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="col-span-4 text-center text-gray-400 mt-10">Yükleniyor...</div>
+        </div>
+    </section>
+
+    <script>
+        async function loadCategory() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const kategori = urlParams.get('kat'); 
+            
+            const isimler = {
+                'anneler': 'Anneler Günü',
+                'sevgililer': 'Sevgililer Günü',
+                'vazolar': 'Vazolar',
+                'standlar': 'Standlar',
+                'takilar': 'Takılar',
+                'kisisel': 'Kişiselleştirilmiş Ürünler' // GÜNCELLENDİ
+            };
+
+            const baslik = isimler[kategori] || 'Koleksiyon';
+            document.getElementById('cat-title').innerText = baslik;
+
+            try {
+                const res = await fetch('/api/urunler');
+                const products = await res.json();
+                const filtered = products.filter(p => p.category === kategori);
+                const grid = document.getElementById('product-grid');
+
+                if(filtered.length === 0) {
+                    grid.innerHTML = `<div class="col-span-4 text-center py-20"><i class="fas fa-box-open text-6xl text-gray-200 mb-4 block"></i><p class="text-gray-400 font-bold">Bu kategoride henüz ürün bulunmuyor.</p></div>`;
+                    return;
+                }
+
+                grid.innerHTML = filtered.map(p => `
+                    <a href="urun-detay.html?id=${p.id}" class="block group no-underline text-inherit">
+                        <div class="product-card">
+                            <div class="h-64 overflow-hidden bg-gray-100">
+                                <img src="${p.img}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110" onerror="this.src='https://via.placeholder.com/300'">
+                            </div>
+                            <div class="p-4 text-center">
+                                <h3 class="text-sm font-bold text-gray-800 mb-1">${p.title}</h3>
+                                <p class="text-purple-400 font-bold mb-3">${p.price}</p>
+                                <button class="btn-add">İNCELE</button>
+                            </div>
+                        </div>
+                    </a>
+                `).join('');
+
+            } catch (err) { console.error(err); }
+        }
+        loadCategory();
+    </script>
+</body>
+</html>

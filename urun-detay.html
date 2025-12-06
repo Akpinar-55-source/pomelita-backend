@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Pomelita | Yükleniyor...</title>
+    <meta name="description" content="Pomelita özel tasarım takı ve aksesuarlar.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sacramento&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-body: #ffffff; --color-purple: #9F8CC2; --color-mint: #98DDCA; --color-pink: #FFB7B2; --text-dark: #4a4a4a; --bg-soft-pink: #FFF0F0; --bg-soft-peach: #FFF5EB; }
+        body { font-family: 'Quicksand', sans-serif; color: var(--text-dark); }
+        .brand-font { font-family: 'Sacramento', cursive; font-weight: 400; letter-spacing: 1px; font-size: 3.5rem; }
+        .aspect-product { aspect-ratio: 3 / 4; }
+        .nav-link-effect { display: inline-block; position: relative; color: var(--text-dark); text-decoration: none; transition: 0.3s; font-weight: 600; }
+        .nav-link-effect::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 3px; bottom: -2px; left: 0; background-color: var(--color-purple); transform-origin: bottom right; transition: transform 0.3s ease-out; border-radius: 2px; }
+        .nav-link-effect:hover::after { transform: scaleX(1); transform-origin: bottom left; }
+        .nav-link-effect:hover { color: var(--color-purple); transform: scale(1.05); }
+        .dropdown { position: relative; display: inline-block; height: 100%; }
+        .dropdown-content { display: none; position: absolute; top: 35px; left: -50px; background-color: white; min-width: 800px; box-shadow: 0 20px 50px rgba(159, 140, 194, 0.2); z-index: 2000; border: 2px solid #f0f0f0; border-radius: 15px; padding: 20px; animation: fadeIn 0.4s ease; }
+        .dropdown:hover .dropdown-content { display: block; }
+        .btn-green-action { background-color: var(--color-mint); color: white; padding: 1rem 2rem; font-size: 0.875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border: 2px solid var(--color-mint); transition: all 0.3s ease; width: 100%; border-radius: 12px; }
+        .btn-green-action:hover { background-color: white; color: var(--color-mint); }
+        .star-rating i { cursor: pointer; color: #e0e0e0; transition: color 0.2s; }
+        .star-rating i.active { color: #FFDAC1; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #cart-sidebar { transition: transform 0.3s ease-in-out; }
+        #toast { transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+    </style>
+</head>
+<body class="bg-white text-gray-800 antialiased">
+
+    <div id="toast" class="fixed top-24 right-5 bg-white border-l-4 border-green-400 px-6 py-4 rounded shadow-2xl transform translate-x-[150%] z-[3000] flex items-center gap-4">
+        <div class="text-green-500 text-2xl"><i class="fas fa-check-circle"></i></div>
+        <div><h4 class="font-bold text-gray-800 text-sm">Başarılı!</h4><p class="text-xs text-gray-500">Ürün sepete eklendi.</p></div>
+    </div>
+
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-96 bg-white shadow-2xl z-[2500] transform translate-x-full flex flex-col">
+        <div class="p-6 border-b flex justify-between items-center bg-gray-50"><h2 class="font-bold text-xl text-gray-800 font-serif">Sepetim (<span class="badge-count">0</span>)</h2><button id="close-cart" class="text-gray-400 hover:text-red-500 transition"><i class="fas fa-times text-2xl"></i></button></div>
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-6"></div>
+        <div class="p-6 border-t bg-gray-50 space-y-3">
+            <div class="flex justify-between text-lg font-bold text-gray-800"><span>Toplam:</span><span id="cart-total">0,00 TL</span></div>
+            <button onclick="clearCart()" class="w-full bg-red-100 text-red-500 py-3 rounded-xl font-bold hover:bg-red-200 transition text-sm">SEPETİ BOŞALT</button>
+            <button onclick="window.location.href='odeme.html'" class="w-full bg-green-700 text-white py-4 rounded-xl font-bold hover:bg-green-800 transition shadow-lg">ÖDEMEYE GEÇ</button>
+        </div>
+    </div>
+    <div id="cart-overlay" class="fixed inset-0 bg-black bg-opacity-40 z-[2400] hidden backdrop-blur-sm"></div>
+
+    <nav class="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md z-50 border-b border-gray-100 px-8 py-4 flex justify-between items-center">
+        <div class="hidden md:flex gap-6 text-sm font-medium text-gray-600 uppercase tracking-wider items-center">
+            <a href="takilar.html" class="nav-link-effect flex items-center gap-2"><i class="fas fa-arrow-left"></i> Geri Dön</a>
+        </div>
+        <div class="text-3xl brand-font" style="color: var(--color-purple); line-height: 1;">
+            <a href="index.html" style="text-decoration:none; color:inherit;">Pomelita</a>
+        </div>
+        <div class="flex items-center gap-6 text-sm font-medium text-gray-600 uppercase">
+            <div class="flex items-center gap-4 text-lg">
+                <button id="cart-btn-desktop" class="relative"><i class="fas fa-shopping-bag"></i><span class="absolute -top-1 -right-2 bg-purple-400 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full badge-count">0</span></button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-start">
+            <div class="flex-1 aspect-product bg-gray-50 relative overflow-hidden group" style="border-radius: 20px;">
+                <img id="p-image" src="" alt="Ürün" class="w-full h-full object-cover transition duration-500 group-hover:scale-105" onerror="this.src='https://via.placeholder.com/600x800?text=Gorsel+Yok'">
+            </div>
+            <div class="mt-10 px-4 sm:px-0 sm:mt-16 lg:mt-0">
+                <div class="mb-6">
+                    <span class="text-sm font-bold tracking-wider" style="color: var(--color-purple);">YENİ SEZON</span>
+                    <h1 id="p-title" class="text-3xl sm:text-4xl mt-2 mb-2 brand-font" style="color: var(--text-dark);">Yükleniyor...</h1>
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="flex text-sm" style="color: #FFDAC1;"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
+                        <span class="text-sm text-gray-400 font-semibold">(24 Değerlendirme)</span>
+                    </div>
+                    <p class="text-xl text-gray-500 font-medium">Pomelita Özel Tasarım</p>
+                </div>
+                <div class="flex items-baseline gap-4 mb-8"><p id="p-price" class="text-3xl font-bold" style="color: var(--color-purple);">...</p></div>
+                
+                <div class="prose prose-sm text-gray-500 mb-8 font-medium">
+                    <p id="p-desc">Ürün detayları yükleniyor...</p>
+                </div>
+
+                <div class="border-t border-gray-200 pt-8">
+                    <div class="flex gap-4">
+                        <button id="btn-add-detail" class="btn-green-action shadow-lg">Sepete Ekle</button>
+                        <button class="w-14 flex items-center justify-center border border-gray-300 hover:border-red-400 hover:text-red-400 transition rounded-xl"><i class="far fa-heart text-lg"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <section class="py-10 border-t border-gray-100" style="background-color: var(--bg-soft-pink);">
+        <div class="max-w-2xl mx-auto px-6">
+            <h2 class="text-2xl brand-font text-center mb-8" style="color: var(--color-purple);">Müşteri Değerlendirmeleri</h2>
+            <div id="reviews-container" class="space-y-6 mb-12">
+                <div class="review-item flex gap-4 border-b border-gray-200 pb-4">
+                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-sm font-bold text-purple-500">MK</div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center mb-1"><h4 class="font-bold text-sm">Merve Kaya</h4><span class="text-[10px] text-gray-400">05.11.2024</span></div>
+                        <div class="text-[10px] mb-1" style="color: #FFDAC1;"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i></div>
+                        <p class="text-gray-600 text-xs font-medium">Tam bedenimi aldım ve üzerime tam oturdu. Tavsiye ederim.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm">
+                <h3 class="text-lg brand-font mb-4" style="color: var(--text-dark);">Değerlendirme Yap</h3>
+                <form id="review-form">
+                    <div class="grid md:grid-cols-2 gap-4 mb-3">
+                        <div><input type="text" id="review-name" class="w-full p-2 border border-gray-200 text-xs focus:border-purple-300 outline-none bg-gray-50 rounded-lg" placeholder="Adınız" required></div>
+                        <div class="flex items-center"><div class="flex text-lg text-gray-300 gap-1 star-rating" id="star-rating"><i class="fas fa-star" data-value="1"></i><i class="fas fa-star" data-value="2"></i><i class="fas fa-star" data-value="3"></i><i class="fas fa-star" data-value="4"></i><i class="fas fa-star" data-value="5"></i></div><input type="hidden" id="rating-value" value="5"></div>
+                    </div>
+                    <div class="mb-3"><input type="file" id="review-photo" accept="image/*" class="w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-semibold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200"></div>
+                    <div class="mb-4"><textarea id="review-text" class="w-full p-2 border border-gray-200 text-xs focus:border-purple-300 outline-none bg-gray-50 h-16 rounded-lg" placeholder="Yorumunuz..." required></textarea></div>
+                    <button type="submit" class="btn-green-action w-full md:w-auto py-2 px-6 text-xs">Gönder</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // SEPET (ORTAK)
+        let sepet = JSON.parse(localStorage.getItem('pomelitaSepet')) || [];
+        const cartSidebar = document.getElementById('cart-sidebar');
+        const cartOverlay = document.getElementById('cart-overlay');
+        const closeCartBtn = document.getElementById('close-cart');
+        const openCartBtn = document.getElementById('cart-btn-desktop');
+
+        function toggleCart() { cartSidebar.classList.toggle('translate-x-full'); cartOverlay.classList.toggle('hidden'); if (!cartSidebar.classList.contains('translate-x-full')) renderCart(); }
+        if(openCartBtn) openCartBtn.addEventListener('click', toggleCart);
+        if(closeCartBtn) closeCartBtn.addEventListener('click', toggleCart);
+        if(cartOverlay) cartOverlay.addEventListener('click', toggleCart);
+
+        function showToast() { const toast = document.getElementById('toast'); toast.classList.remove('translate-x-[150%]'); setTimeout(() => { toast.classList.add('translate-x-[150%]'); }, 3000); }
+        function updateCart() { localStorage.setItem('pomelitaSepet', JSON.stringify(sepet)); const totalCount = sepet.reduce((acc, item) => acc + item.adet, 0); document.querySelectorAll('.badge-count').forEach(el => el.innerText = totalCount); }
+        
+        function renderCart() {
+            const container = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            if (sepet.length === 0) { container.innerHTML = '<div class="text-center text-gray-400 mt-10">Sepet boş</div>'; totalEl.innerText = '0,00 TL'; return; }
+            let total = 0;
+            container.innerHTML = sepet.map(item => {
+                let priceNum = parseFloat(item.price.replace('TL','').replace('.','').replace(',','.'));
+                if(isNaN(priceNum)) priceNum = 0;
+                total += priceNum * item.adet;
+                let itemTotal = (priceNum * item.adet).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                return `<div class="flex gap-4 items-center border-b pb-4 last:border-0"><img src="${item.img}" class="w-16 h-16 object-cover rounded-md border"><div class="flex-1"><h4 class="text-sm font-bold text-gray-800 line-clamp-1">${item.title}</h4><p class="text-xs text-gray-500">${item.price}</p><div class="flex items-center gap-3 mt-2"><button onclick="changeQty('${item.id}', -1)" class="w-6 h-6 bg-gray-100 rounded-full text-xs font-bold hover:bg-gray-200">-</button><span class="text-sm font-semibold">${item.adet}</span><button onclick="changeQty('${item.id}', 1)" class="w-6 h-6 bg-gray-100 rounded-full text-xs font-bold hover:bg-gray-200">+</button></div></div><div class="text-right flex flex-col items-end"><p class="font-bold text-sm text-green-600">${itemTotal} TL</p><button onclick="removeItem('${item.id}')" class="text-xs text-red-400 underline mt-1">Sil</button></div></div>`;
+            }).join('');
+            totalEl.innerText = total.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' TL';
+        }
+        window.changeQty = function(id, change) { const item = sepet.find(i => i.id === id); if (item) { item.adet += change; if (item.adet <= 0) sepet = sepet.filter(i => i.id !== id); updateCart(); renderCart(); } };
+        window.removeItem = function(id) { sepet = sepet.filter(i => i.id !== id); updateCart(); renderCart(); }
+        window.clearCart = function() { sepet = []; updateCart(); renderCart(); }
+
+        // --- DİNAMİK ÜRÜN & SEO ÇEKME ---
+        let currentProduct = null;
+
+        async function loadProductDetail() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+
+            if(!id) {
+                document.getElementById('p-title').innerText = "Ürün Bulunamadı";
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/urunler');
+                const products = await response.json();
+                currentProduct = products.find(p => p.id == id);
+
+                if (currentProduct) {
+                    document.getElementById('p-title').innerText = currentProduct.title;
+                    document.getElementById('p-price').innerText = currentProduct.price;
+                    document.getElementById('p-image').src = currentProduct.img;
+                    
+                    // AÇIKLAMA (Eğer boşsa varsayılan metin)
+                    document.getElementById('p-desc').innerText = currentProduct.desc || "Bu ürün için henüz detaylı bir açıklama girilmemiştir.";
+
+                    // SEO GÜNCELLEMESİ (Başlık ve Meta Açıklama)
+                    document.title = `${currentProduct.title} | Pomelita`;
+                    const metaDesc = document.querySelector('meta[name="description"]');
+                    if(metaDesc && currentProduct.desc) {
+                        metaDesc.setAttribute("content", currentProduct.desc);
+                    }
+
+                } else {
+                    document.getElementById('p-title').innerText = "Ürün Silinmiş veya Bulunamadı";
+                    document.getElementById('btn-add-detail').disabled = true;
+                    document.getElementById('btn-add-detail').innerText = "Stokta Yok";
+                    document.getElementById('btn-add-detail').classList.add('bg-gray-400', 'border-gray-400');
+                }
+            } catch (err) {
+                console.error("Hata:", err);
+            }
+        }
+
+        // Sepete Ekle Butonu
+        document.getElementById('btn-add-detail').addEventListener('click', function() {
+            if(currentProduct) {
+                const existingItem = sepet.find(item => item.id === currentProduct.id);
+                if (existingItem) existingItem.adet++; 
+                else sepet.push({ 
+                    id: currentProduct.id, 
+                    title: currentProduct.title, 
+                    price: currentProduct.price, 
+                    img: currentProduct.img, 
+                    adet: 1 
+                });
+                updateCart(); showToast(); renderCart();
+            }
+        });
+
+        // Yıldız ve Yorum Sistemi
+        const stars = document.querySelectorAll('#star-rating i');
+        const ratingInput = document.getElementById('rating-value');
+        stars.forEach(star => { star.addEventListener('click', () => { const value = star.getAttribute('data-value'); ratingInput.value = value; updateStars(value); }); });
+        function updateStars(value) { stars.forEach(star => { if(star.getAttribute('data-value') <= value) { star.classList.add('active'); star.classList.remove('text-gray-300'); star.classList.add('text-yellow-200'); } else { star.classList.remove('active'); star.classList.add('text-gray-300'); star.classList.remove('text-yellow-200'); } }); }
+        updateStars(5);
+        document.getElementById('review-form').addEventListener('submit', function(e) { e.preventDefault(); const name = document.getElementById('review-name').value; const text = document.getElementById('review-text').value; const rating = ratingInput.value; const photoInput = document.getElementById('review-photo'); const date = new Date().toLocaleDateString('tr-TR'); const userInitials = name.substring(0, 2).toUpperCase(); if (photoInput.files && photoInput.files[0]) { const reader = new FileReader(); reader.onload = function(e) { addReviewToPage(name, text, rating, date, userInitials, e.target.result); }; reader.readAsDataURL(photoInput.files[0]); } else { addReviewToPage(name, text, rating, date, userInitials, null); } this.reset(); updateStars(5); });
+        function addReviewToPage(name, text, rating, date, initials, photoSrc) { let starsHTML = ''; for(let i=1; i<=5; i++) { if(i <= rating) starsHTML += '<i class="fas fa-star"></i>'; else starsHTML += '<i class="far fa-star"></i>'; } let imgBlock = photoSrc ? `<img src="${photoSrc}" class="w-16 h-16 object-cover rounded-lg border border-gray-200 mt-2 cursor-pointer">` : ''; const newReviewHTML = `<div class="review-item flex gap-4 border-b border-gray-100 pb-4"><div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm font-bold">${initials}</div><div class="flex-1"><div class="flex justify-between items-center mb-1"><h4 class="font-bold text-sm">${name}</h4><span class="text-[10px] text-gray-400">${date}</span></div><div class="text-yellow-200 text-[10px] mb-1">${starsHTML}</div><p class="text-gray-600 text-xs mb-1">${text}</p>${imgBlock}</div></div>`; document.getElementById('reviews-container').insertAdjacentHTML('beforeend', newReviewHTML); }
+        
+        updateCart();
+        loadProductDetail();
+    </script>
+</body>
+</html>

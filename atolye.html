@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomelita | Atölye</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sacramento&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-body: #ffffff; --color-purple: #9F8CC2; --color-mint: #98DDCA; --color-pink: #FFB7B2; --text-dark: #4a4a4a; --bg-soft-mint: #F0FFFA; }
+        body { margin: 0; padding: 0; background-color: var(--bg-body); font-family: 'Quicksand', sans-serif; color: var(--text-dark); overflow-x: hidden; }
+        .brand-font { font-family: 'Sacramento', cursive; font-weight: 400; letter-spacing: 1px; font-size: 3.5rem; }
+        .btn-green-submit { background-color: var(--color-mint); color: white; padding: 15px 40px; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; width: 100%; transition: 0.3s; border: 2px solid var(--color-mint); cursor: pointer; border-radius: 12px; }
+        .btn-green-submit:hover { background-color: white; color: var(--color-mint); }
+        .nav-link-effect { display: inline-block; position: relative; color: var(--text-dark); text-decoration: none; transition: 0.3s; font-weight: 600; }
+        .nav-link-effect::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 3px; bottom: -2px; left: 0; background-color: var(--color-purple); transform-origin: bottom right; transition: transform 0.3s ease-out; border-radius: 2px; }
+        .nav-link-effect:hover::after { transform: scaleX(1); transform-origin: bottom left; }
+        .nav-link-effect:hover { color: var(--color-purple); transform: scale(1.05); }
+        .dropdown { position: relative; display: inline-block; height: 100%; }
+        .dropdown-content { display: none; position: absolute; top: 35px; left: -50px; background-color: white; min-width: 800px; box-shadow: 0 20px 50px rgba(159, 140, 194, 0.2); z-index: 2000; border: 2px solid #f0f0f0; border-radius: 15px; padding: 20px; animation: fadeIn 0.4s ease; }
+        .dropdown:hover .dropdown-content { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .form-input { width: 100%; padding: 15px; border: 1px solid #e5e7eb; background-color: #f9fafb; outline: none; transition: 0.3s; font-family: 'Quicksand', sans-serif; border-radius: 10px; }
+        .form-input:focus { border-color: var(--color-purple); background-color: white; box-shadow: 0 0 0 3px rgba(159, 140, 194, 0.1); }
+        .page-hero { height: 500px; background-color: #f3f4f6; display: flex; align-items: center; justify-content: center; text-align: center; background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('isgorselleri/urun3.png'); background-size: cover; background-position: center; background-attachment: fixed; border-radius: 0 0 30px 30px; }
+        .page-hero h1 { color: white; font-size: 5rem; text-shadow: 0 4px 15px rgba(0,0,0,0.6); letter-spacing: 2px; }
+        #cart-sidebar { transition: transform 0.3s ease-in-out; }
+        #toast { transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+    </style>
+</head>
+<body>
+
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-96 bg-white shadow-2xl z-[2500] transform translate-x-full flex flex-col">
+        <div class="p-6 border-b flex justify-between items-center bg-gray-50"><h2 class="font-bold text-xl text-gray-800 font-serif">Sepetim (<span class="badge-count">0</span>)</h2><button id="close-cart" class="text-gray-400 hover:text-red-500 transition"><i class="fas fa-times text-2xl"></i></button></div>
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-6"></div>
+        <div class="p-6 border-t bg-gray-50 space-y-3">
+            <div class="flex justify-between text-lg font-bold text-gray-800"><span>Toplam:</span><span id="cart-total">0,00 TL</span></div>
+            <button onclick="clearCart()" class="w-full bg-red-100 text-red-500 py-3 rounded-xl font-bold hover:bg-red-200 transition text-sm">SEPETİ BOŞALT</button>
+            <button onclick="window.location.href='odeme.html'" class="w-full bg-green-700 text-white py-4 rounded-xl font-bold hover:bg-green-800 transition shadow-lg">ÖDEMEYE GEÇ</button>
+        </div>
+    </div>
+    <div id="cart-overlay" class="fixed inset-0 bg-black bg-opacity-40 z-[2400] hidden backdrop-blur-sm"></div>
+
+    <nav class="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md z-50 border-b border-gray-100 px-10 py-5 flex justify-between items-center">
+        <button id="mobile-menu-btn" class="lg:hidden text-2xl text-gray-700"><i class="fas fa-bars"></i></button>
+        <div class="hidden lg:flex gap-8 text-lg font-bold uppercase tracking-widest items-center" style="color: var(--text-dark);">
+            <a href="index.html" class="nav-link-effect">Ana Sayfa</a>
+            <div class="dropdown">
+                <a href="#" class="nav-link-effect" style="cursor: default;">Kategoriler <i class="fas fa-chevron-down text-xs ml-1"></i></a>
+                <div class="dropdown-content">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+                        <a href="kategori.html?kat=anneler" style="display:block;"><img src="isgorselleri/urun1.png" style="width:100%; height:100%; object-fit:cover;"><span style="display:block; margin-top:5px; font-weight:700; color:var(--color-purple);">Anneler Günü</span></a>
+                        <a href="kategori.html?kat=sevgililer" style="display:block;"><img src="isgorselleri/urun2.png" style="width:100%; height:100%; object-fit:cover;"><span style="display:block; margin-top:5px; font-weight:700; color:var(--color-purple);">Sevgililer Günü</span></a>
+                        <a href="kategori.html?kat=vazolar" style="display:block;"><img src="isgorselleri/urun3.png" style="width:100%; height:100%; object-fit:cover;"><span style="display:block; margin-top:5px; font-weight:700; color:var(--color-purple);">Vazolar</span></a>
+                        <a href="kategori.html?kat=standlar" style="display:block;"><img src="isgorselleri/urun1.png" style="width:100%; height:100%; object-fit:cover;"><span style="display:block; margin-top:5px; font-weight:700; color:var(--color-purple);">Standlar</span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="brand-font" style="color: var(--color-purple); line-height: 1;">
+            <a href="index.html" style="text-decoration:none; color:inherit;">Pomelita</a>
+        </div>
+        <div class="flex items-center gap-8 text-lg font-bold uppercase tracking-widest" style="color: var(--text-dark);">
+            <div class="hidden md:flex gap-8">
+                <a href="takilar.html" class="nav-link-effect">Takılar</a>
+                <a href="atolye.html" class="nav-link-effect border-b-2" style="border-color: var(--color-purple);">Atölye</a>
+            </div>
+            <div class="flex items-center gap-5 text-xl">
+                <button class="hover:text-purple-400 transition transform hover:scale-110"><i class="fas fa-search"></i></button>
+                <button id="cart-btn-desktop" class="hover:text-purple-400 transition relative transform hover:scale-110"><i class="fas fa-shopping-bag"></i><span class="absolute -top-2 -right-2 bg-purple-400 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full badge-count">0</span></button>
+            </div>
+        </div>
+        <div class="lg:hidden flex items-center gap-4 text-xl">
+             <button id="cart-btn-mobile" class="relative"><i class="fas fa-shopping-bag"></i><span class="absolute -top-2 -right-2 bg-purple-400 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full badge-count">0</span></button>
+        </div>
+    </nav>
+
+    <div id="mobile-menu" class="fixed top-0 left-0 w-3/4 h-full bg-white z-[60] shadow-2xl p-6 flex flex-col gap-6 transform -translate-x-full transition-transform duration-300">
+        <div class="flex justify-between items-center mb-4"><span class="brand-font text-3xl text-purple-400">Pomelita</span><button id="close-menu-btn" class="text-2xl"><i class="fas fa-times"></i></button></div>
+        <a href="index.html" class="text-lg font-bold text-gray-700 border-b pb-2">ANA SAYFA</a>
+        <a href="takilar.html" class="text-lg font-bold text-gray-700 border-b pb-2">TAKILAR</a>
+        <a href="atolye.html" class="text-lg font-bold text-gray-700 border-b pb-2">ATÖLYE</a>
+    </div>
+    <div id="menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-[55] hidden"></div>
+
+    <header class="page-hero">
+        <div><h1 class="brand-font mb-4">Pomelita Atölye</h1><p class="text-white text-xl tracking-widest uppercase font-bold">Hayalinizdeki Tasarım, Usta Ellerle Buluşuyor</p></div>
+    </header>
+
+    <section class="py-24 px-8 max-w-7xl mx-auto">
+        <div class="text-center mb-16">
+            <h2 class="text-5xl brand-font mb-6" style="color: var(--color-purple);">Süreç Nasıl İşler?</h2>
+            <p class="max-w-2xl mx-auto text-lg">Siz hayal edin, biz tasarlayalım.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-12 text-center">
+            <div class="p-10 hover:shadow-lg transition duration-300 rounded-2xl border border-gray-100" style="background-color: #FFF0F0;"><div class="w-24 h-24 bg-white text-purple-400 rounded-full flex items-center justify-center mx-auto mb-8 text-4xl shadow-sm"><i class="far fa-lightbulb"></i></div><h3 class="text-2xl font-bold mb-4">1. Hayal Et</h3><p class="leading-relaxed">Aklınızdaki tasarımı bize anlatın.</p></div>
+            <div class="p-10 hover:shadow-lg transition duration-300 rounded-2xl border border-gray-100" style="background-color: #F0FFF4;"><div class="w-24 h-24 bg-white text-green-400 rounded-full flex items-center justify-center mx-auto mb-8 text-4xl shadow-sm"><i class="fas fa-pencil-ruler"></i></div><h3 class="text-2xl font-bold mb-4">2. Tasarlayalım</h3><p class="leading-relaxed">Ekibimiz sizin için eskizler hazırlar.</p></div>
+            <div class="p-10 hover:shadow-lg transition duration-300 rounded-2xl border border-gray-100" style="background-color: #FFFBEB;"><div class="w-24 h-24 bg-white text-yellow-400 rounded-full flex items-center justify-center mx-auto mb-8 text-4xl shadow-sm"><i class="fas fa-gem"></i></div><h3 class="text-2xl font-bold mb-4">3. Üretelim</h3><p class="leading-relaxed">Onaylanan tasarım atölyemizde üretilir.</p></div>
+        </div>
+    </section>
+
+    <section class="py-24" style="background-color: var(--bg-soft-mint);">
+        <div class="max-w-4xl mx-auto px-8">
+            <div class="bg-white p-12 shadow-xl rounded-3xl border border-gray-100">
+                <h2 class="text-4xl brand-font text-center mb-12" style="color: var(--color-purple);">Tasarım Talep Formu</h2>
+                <form>
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <div><label class="block text-sm font-bold mb-3 uppercase tracking-wider" style="color: var(--color-purple);">Adınız Soyadınız</label><input type="text" class="form-input" placeholder="Örn: Ayşe Yılmaz"></div>
+                        <div><label class="block text-sm font-bold mb-3 uppercase tracking-wider" style="color: var(--color-purple);">E-Posta Adresiniz</label><input type="email" class="form-input" placeholder="mail@ornek.com"></div>
+                    </div>
+                    <div class="mb-8"><label class="block text-sm font-bold mb-3 uppercase tracking-wider" style="color: var(--color-purple);">Tasarım Konusu</label><div class="relative"><select class="form-input appearance-none"><option>Özel Tasarım Kolye</option><option>Özel Tasarım Yüzük</option><option>Özel Dikim Kıyafet</option><option>Diğer</option></select></div></div>
+                    <div class="mb-8"><label class="block text-sm font-bold mb-3 uppercase tracking-wider" style="color: var(--color-purple);">Hayalinizdeki Tasarımı Anlatın</label><textarea class="form-input h-48 resize-none"></textarea></div>
+                    <button type="button" class="btn-green-submit shadow-lg">Talebi Gönder</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // SEPET SİSTEMİ (ORTAK)
+        let sepet = JSON.parse(localStorage.getItem('pomelitaSepet')) || [];
+        const cartSidebar = document.getElementById('cart-sidebar');
+        const cartOverlay = document.getElementById('cart-overlay');
+        const closeCartBtn = document.getElementById('close-cart');
+        const openCartBtn = document.getElementById('cart-btn-desktop');
+        const openCartBtnMobile = document.getElementById('cart-btn-mobile');
+
+        function toggleCart() { cartSidebar.classList.toggle('translate-x-full'); cartOverlay.classList.toggle('hidden'); if (!cartSidebar.classList.contains('translate-x-full')) renderCart(); }
+        if(openCartBtn) openCartBtn.addEventListener('click', toggleCart);
+        if(openCartBtnMobile) openCartBtnMobile.addEventListener('click', toggleCart);
+        if(closeCartBtn) closeCartBtn.addEventListener('click', toggleCart);
+        if(cartOverlay) cartOverlay.addEventListener('click', toggleCart);
+
+        function updateCart() { localStorage.setItem('pomelitaSepet', JSON.stringify(sepet)); const totalCount = sepet.reduce((acc, item) => acc + item.adet, 0); document.querySelectorAll('.badge-count').forEach(el => el.innerText = totalCount); }
+        
+        function renderCart() {
+            const container = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            if (sepet.length === 0) { container.innerHTML = '<div class="text-center text-gray-400 mt-10">Sepet boş</div>'; totalEl.innerText = '0,00 TL'; return; }
+            let total = 0;
+            container.innerHTML = sepet.map(item => {
+                let priceNum = parseFloat(item.price.replace('TL','').replace('.','').replace(',','.'));
+                if(isNaN(priceNum)) priceNum = 0;
+                total += priceNum * item.adet;
+                let itemTotal = (priceNum * item.adet).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                return `<div class="flex gap-4 items-center border-b pb-4 last:border-0"><img src="${item.img}" class="w-16 h-16 object-cover rounded-md border"><div class="flex-1"><h4 class="text-sm font-bold text-gray-800 line-clamp-1">${item.title}</h4><p class="text-xs text-gray-500">${item.price}</p><div class="flex items-center gap-3 mt-2"><button onclick="changeQty('${item.id}', -1)" class="w-6 h-6 bg-gray-100 rounded-full text-xs font-bold hover:bg-gray-200">-</button><span class="text-sm font-semibold">${item.adet}</span><button onclick="changeQty('${item.id}', 1)" class="w-6 h-6 bg-gray-100 rounded-full text-xs font-bold hover:bg-gray-200">+</button></div></div><div class="text-right flex flex-col items-end"><p class="font-bold text-sm text-green-600">${itemTotal} TL</p><button onclick="removeItem('${item.id}')" class="text-xs text-red-400 underline mt-1">Sil</button></div></div>`;
+            }).join('');
+            totalEl.innerText = total.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' TL';
+        }
+        window.changeQty = function(id, change) { const item = sepet.find(i => i.id === id); if (item) { item.adet += change; if (item.adet <= 0) sepet = sepet.filter(i => i.id !== id); updateCart(); renderCart(); } };
+        window.removeItem = function(id) { sepet = sepet.filter(i => i.id !== id); updateCart(); renderCart(); }
+        window.clearCart = function() { sepet = []; updateCart(); renderCart(); }
+
+        // MOBİL MENÜ
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const closeBtn = document.getElementById('close-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const overlay = document.getElementById('menu-overlay');
+        function toggleMenu() { mobileMenu.classList.toggle('-translate-x-full'); if(!mobileMenu.classList.contains('-translate-x-full')) overlay.classList.remove('hidden'); else overlay.classList.add('hidden'); }
+        if(menuBtn) menuBtn.addEventListener('click', toggleMenu);
+        if(closeBtn) closeBtn.addEventListener('click', toggleMenu);
+        if(overlay) overlay.addEventListener('click', toggleMenu);
+
+        updateCart();
+    </script>
+</body>
+</html>

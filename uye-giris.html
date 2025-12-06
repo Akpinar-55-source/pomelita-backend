@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomelita | Üye Girişi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sacramento&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Quicksand', sans-serif; background-color: #F4F0FF; }
+        .brand-font { font-family: 'Sacramento', cursive; }
+        .form-box { transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen px-4">
+
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md relative overflow-hidden">
+        <a href="index.html" class="absolute top-4 left-4 text-gray-400 hover:text-purple-500"><i class="fas fa-arrow-left"></i> Ana Sayfa</a>
+        
+        <div class="text-center mb-8 mt-6">
+            <h1 class="brand-font text-5xl text-[#9F8CC2]">Pomelita</h1>
+            <p class="text-xs text-gray-400 tracking-widest mt-2 uppercase">Üyelik Paneli</p>
+        </div>
+
+        <div class="flex bg-gray-100 rounded-lg p-1 mb-6">
+            <button onclick="toggleForm('login')" id="tab-login" class="flex-1 py-2 rounded-md text-sm font-bold bg-white shadow-sm text-purple-600 transition">Giriş Yap</button>
+            <button onclick="toggleForm('register')" id="tab-register" class="flex-1 py-2 rounded-md text-sm font-bold text-gray-500 transition">Kayıt Ol</button>
+        </div>
+
+        <form id="login-form" class="form-box space-y-4">
+            <div><label class="text-xs font-bold text-gray-400 uppercase">E-Posta</label><input type="email" id="l-email" class="w-full p-3 border rounded-lg outline-none focus:border-purple-400" required></div>
+            <div><label class="text-xs font-bold text-gray-400 uppercase">Şifre</label><input type="password" id="l-pass" class="w-full p-3 border rounded-lg outline-none focus:border-purple-400" required></div>
+            <button type="submit" class="w-full bg-[#98DDCA] text-white py-3 rounded-xl font-bold hover:opacity-90 transition">GİRİŞ YAP</button>
+        </form>
+
+        <form id="register-form" class="form-box space-y-4 hidden">
+            <div class="grid grid-cols-2 gap-2">
+                <div><label class="text-xs font-bold text-gray-400 uppercase">Ad</label><input type="text" id="r-ad" class="w-full p-3 border rounded-lg outline-none focus:border-purple-400" required></div>
+                <div><label class="text-xs font-bold text-gray-400 uppercase">Soyad</label><input type="text" id="r-soyad" class="w-full p-3 border rounded-lg outline-none focus:border-purple-400" required></div>
+            </div>
+            <div><label class="text-xs font-bold text-gray-400 uppercase">E-Posta</label><input type="email" id="r-email" class="w-full p-3 border rounded-lg outline-none focus:border-purple-400" required></div>
+            <div><label class="text-xs font-bold text-gray-400 uppercase">Şifre</label><input type="password" id="r-pass" class="w-full p-3 border rounded-lg outline-none focus:border-purple-400" required></div>
+            <button type="submit" class="w-full bg-[#9F8CC2] text-white py-3 rounded-xl font-bold hover:opacity-90 transition">KAYIT OL</button>
+        </form>
+    </div>
+
+    <script>
+        function toggleForm(type) {
+            const loginForm = document.getElementById('login-form');
+            const regForm = document.getElementById('register-form');
+            const tabLogin = document.getElementById('tab-login');
+            const tabReg = document.getElementById('tab-register');
+
+            if(type === 'login') {
+                loginForm.classList.remove('hidden'); regForm.classList.add('hidden');
+                tabLogin.classList.add('bg-white', 'shadow-sm', 'text-purple-600'); tabLogin.classList.remove('text-gray-500');
+                tabReg.classList.remove('bg-white', 'shadow-sm', 'text-purple-600'); tabReg.classList.add('text-gray-500');
+            } else {
+                loginForm.classList.add('hidden'); regForm.classList.remove('hidden');
+                tabReg.classList.add('bg-white', 'shadow-sm', 'text-purple-600'); tabReg.classList.remove('text-gray-500');
+                tabLogin.classList.remove('bg-white', 'shadow-sm', 'text-purple-600'); tabLogin.classList.add('text-gray-500');
+            }
+        }
+
+        // --- GİRİŞ İŞLEMİ ---
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('l-email').value;
+            const sifre = document.getElementById('l-pass').value;
+            
+            try {
+                const res = await fetch('/api/giris', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email, sifre}) });
+                const data = await res.json();
+                
+                if(res.ok) {
+                    localStorage.setItem('pomelitaUser', JSON.stringify(data.user));
+                    window.location.href = 'profil.html';
+                } else {
+                    alert(data.error);
+                }
+            } catch(err) { alert('Bağlantı hatası'); }
+        });
+
+        // --- KAYIT İŞLEMİ ---
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const u = {
+                ad: document.getElementById('r-ad').value,
+                soyad: document.getElementById('r-soyad').value,
+                email: document.getElementById('r-email').value,
+                sifre: document.getElementById('r-pass').value
+            };
+            
+            try {
+                const res = await fetch('/api/kayit', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(u) });
+                const data = await res.json();
+                
+                if(res.ok) {
+                    alert('Kayıt Başarılı! Şimdi giriş yapabilirsiniz.');
+                    toggleForm('login');
+                    document.getElementById('register-form').reset();
+                } else {
+                    alert(data.error);
+                }
+            } catch(err) { alert('Hata oluştu'); }
+        });
+    </script>
+</body>
+</html>

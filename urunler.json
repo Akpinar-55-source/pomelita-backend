@@ -1,0 +1,20 @@
+[
+  {
+    "title": "Muhammed beyin tasarımı",
+    "price": "1500000",
+    "stok": "1",
+    "category": "anneler",
+    "desc": "safdafsa",
+    "img": "isgörselleri/png",
+    "id": "1764523718517"
+  },
+  {
+    "title": "Muhammed beyin tasarımı 2",
+    "price": "1500000",
+    "stok": 0,
+    "category": "takilar",
+    "desc": "aaa",
+    "img": "isgörselleri/png",
+    "id": "1764524007337"
+  }
+]

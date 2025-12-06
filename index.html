@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomelita | Stilini Yükselt</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sacramento&family=Quicksand:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@100;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --bg-body: #ffffff; --color-purple: #9F8CC2; --color-pink: #FFB7B2; --color-mint: #98DDCA; --color-peach: #FFDAC1; --text-dark: #4a4a4a; --bg-soft-purple: #F4F0FF; --bg-soft-mint: #F0FFFA; --bg-soft-peach: #FFF5EB; }
+        body { margin: 0; padding: 0; background-color: var(--bg-body); font-family: 'Quicksand', sans-serif; color: var(--text-dark); overflow-x: hidden; }
+        .brand-font { font-family: 'Sacramento', cursive; font-weight: 400; letter-spacing: 1px; font-size: 3.5rem; }
+        .reveal { opacity: 0; transform: scale(1.05) translateY(20px); transition: all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .reveal.active { opacity: 1; transform: scale(1) translateY(0); }
+        .nav-link-effect { display: inline-block; position: relative; color: var(--text-dark); text-decoration: none; transition: 0.3s; font-weight: 600; }
+        .nav-link-effect::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 3px; bottom: -2px; left: 0; background-color: var(--color-purple); transform-origin: bottom right; transition: transform 0.3s ease-out; border-radius: 2px; }
+        .nav-link-effect:hover::after { transform: scaleX(1); transform-origin: bottom left; }
+        .nav-link-effect:hover { color: var(--color-purple); transform: scale(1.05); }
+        .dropdown { position: relative; display: inline-block; height: 100%; }
+        .dropdown-content { display: none; position: absolute; top: 35px; left: -150px; background-color: white; min-width: 900px; box-shadow: 0 20px 50px rgba(159, 140, 194, 0.2); z-index: 2000; border: 2px solid #f0f0f0; border-radius: 15px; padding: 20px; animation: fadeIn 0.4s ease; }
+        .dropdown:hover .dropdown-content { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .btn-hero { background-color: var(--color-mint); color: white; padding: 15px 45px; text-decoration: none; display: inline-block; margin-top: 25px; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; font-weight: 700; border: 2px solid var(--color-mint); border-radius: 50px; }
+        .btn-hero:hover { background-color: white; color: var(--color-mint); transform: scale(1.05); }
+        .btn-add { width: 100%; padding: 15px 0; background-color: var(--color-mint); color: white; border: 2px solid var(--color-mint); text-transform: uppercase; font-size: 13px; letter-spacing: 1px; cursor: pointer; transition: 0.3s; font-weight: 700; border-radius: 12px; }
+        .btn-add:hover { background-color: white; color: var(--color-mint); }
+        .hero { position: relative; width: 100%; height: 750px; display: flex; align-items: flex-end; justify-content: flex-end; overflow: hidden; padding-bottom: 60px; padding-right: 60px; }
+        .hero-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; }
+        .hero-content { background-color: rgba(255, 255, 255, 0.9); padding: 30px 50px; text-align: center; max-width: 400px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .hero-script { font-family: 'Sacramento', cursive; font-size: 60px; color: var(--color-purple); margin: 0; line-height: 1.1; }
+        .marquee-strip { background-color: var(--color-pink); color: white; padding: 18px 0; overflow: hidden; white-space: nowrap; }
+        .marquee-content { display: inline-block; animation: scroll 25s linear infinite; font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .special-banner-wrapper { position: relative; width: 100%; height: 650px; overflow: hidden; margin-top: 0; }
+        .slideshow-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+        .slideshow-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; animation: imageAnimation 18s linear infinite; object-fit: cover; }
+        .slideshow-container img:nth-child(1) { animation-delay: 0s; } .slideshow-container img:nth-child(2) { animation-delay: 6s; } .slideshow-container img:nth-child(3) { animation-delay: 12s; }
+        @keyframes imageAnimation { 0% { opacity: 0; } 10% { opacity: 1; } 27% { opacity: 1; } 37% { opacity: 0; } 100% { opacity: 0; } }
+        .content-overlay { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; background-color: rgba(255, 255, 255, 0.4); color: white; }
+        .header-style h1 { font-size: 7rem; font-weight: 400; margin-bottom: 1rem; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+        .main-style { max-width: 700px; padding: 3rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); background-color: var(--bg-soft-purple); border: 2px solid white; } 
+        .main-style p.slogan { font-family: 'Sacramento', cursive; font-size: 4rem; margin-bottom: 1rem; color: var(--color-purple); line-height: 1.2; }
+        .button-style { margin-top: 2.5rem; display: inline-block; background-color: var(--color-mint); color: white; padding: 1rem 3rem; border-radius: 50px; font-size: 1.25rem; font-weight: 700; text-transform: uppercase; text-decoration: none; transition: all 0.3s; border: 2px solid var(--color-mint); }
+        .button-style:hover { background-color: white; color: var(--color-mint); transform: scale(1.05); }
+        .products-section-wrapper { background-color: var(--bg-soft-peach); padding: 80px 0; }
+        .products-section { max-width: 1400px; margin: 0 auto; padding: 0 30px; }
+        .section-title { text-align: left; font-family: 'Sacramento', cursive; font-size: 60px; margin-bottom: 40px; color: var(--color-purple); }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; }
+        .product-card { background: white; position: relative; cursor: pointer; transition: transform 0.5s ease; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .img-wrap { width: 100%; height: 450px; overflow: hidden; background-color: #f9f9f9; }
+        .img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .product-card:hover .img-wrap img { transform: scale(1.05); }
+        .info-wrap { padding: 20px; text-align: center; } 
+        .p-title { font-size: 16px; color: var(--text-dark); margin-bottom: 8px; font-weight: 600; }
+        .p-price { font-size: 18px; font-weight: 700; color: var(--color-purple); margin-bottom: 15px; }
+        .features-section { padding: 60px 0; background-color: white; }
+        .feature-box { text-align: center; padding: 20px; transition: 0.3s; }
+        .feature-box:hover { transform: translateY(-5px); }
+        .feature-icon { font-size: 40px; color: var(--color-mint); margin-bottom: 15px; }
+        .feature-title { font-weight: 700; color: var(--text-dark); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .feature-desc { font-size: 14px; color: #888; }
+        .newsletter-section { background-color: var(--color-purple); padding: 80px 20px; text-align: center; color: white; }
+        .newsletter-input { padding: 15px 25px; border-radius: 50px; border: none; outline: none; width: 100%; max-width: 400px; color: var(--text-dark); margin-right: 10px; }
+        .newsletter-btn { background-color: var(--color-peach); color: var(--text-dark); padding: 15px 40px; border-radius: 50px; font-weight: 700; text-transform: uppercase; transition: 0.3s; margin-top: 10px; }
+        .newsletter-btn:hover { background-color: white; transform: scale(1.05); }
+        .insta-section-wrapper { background-color: var(--bg-soft-mint); padding: 80px 0; }
+        .insta-section { text-align: center; }
+        .insta-title { font-family: 'Sacramento', cursive; font-size: 50px; padding-bottom: 30px; margin:0; color: var(--color-purple); }
+        .insta-grid { display: flex; width: 100%; gap: 5px; }
+        .insta-item { flex: 1; height: 350px; overflow: hidden; position: relative; border-radius: 10px; }
+        .insta-item img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; display: block; }
+        .insta-item:hover img { transform: scale(1.1); filter: brightness(0.8); }
+        .insta-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 30px; opacity: 0; transition: 0.3s; pointer-events: none; }
+        .insta-item:hover .insta-overlay { opacity: 1; }
+        footer { background-color: var(--bg-soft-peach); color: var(--text-dark); padding-top: 80px; padding-bottom: 40px; }
+        .footer-col h4 { font-family: 'Sacramento', cursive; font-size: 30px; color: var(--color-purple); margin-bottom: 20px; }
+        .footer-col ul { list-style: none; padding: 0; }
+        .footer-col ul li { margin-bottom: 10px; }
+        .footer-col ul li a { text-decoration: none; color: #666; transition: 0.3s; font-size: 14px; font-weight: 500; }
+        .footer-col ul li a:hover { color: var(--color-purple); padding-left: 5px; }
+        .social-links a { display: inline-block; width: 40px; height: 40px; background: white; border-radius: 50%; text-align: center; line-height: 40px; color: var(--color-purple); margin-right: 10px; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .social-links a:hover { background: var(--color-purple); color: white; transform: translateY(-3px); }
+        #cart-sidebar { transition: transform 0.3s ease-in-out; }
+        #toast { transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+        #search-overlay { backdrop-filter: blur(10px); }
+        .search-input { background: transparent; border: none; border-bottom: 2px solid white; color: white; font-size: 40px; width: 100%; max-width: 800px; padding: 20px; outline: none; text-align: center; font-family: 'Sacramento', cursive; }
+        .search-input::placeholder { color: rgba(255,255,255,0.7); }
+        .glass-overlay { background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); }
+        .float-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background-color: var(--color-purple); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(159, 140, 194, 0.4); cursor: pointer; transition: 0.3s; z-index: 4000; }
+        .float-btn:hover { transform: scale(1.1); background-color: var(--color-mint); }
+        @media (max-width: 1024px) {
+            .hero { height: 600px; justify-content: center; align-items: flex-end; padding: 20px; }
+            .hero-content { padding: 20px; width: 90%; }
+            .grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            .img-wrap { height: 250px; }
+            .dropdown-content { display: none !important; } 
+        }
+    </style>
+</head>
+<body>
+
+    <div id="search-overlay" class="fixed inset-0 bg-purple-900 bg-opacity-90 z-[5000] hidden flex flex-col items-center justify-center">
+        <button onclick="toggleSearch()" class="absolute top-10 right-10 text-white text-4xl hover:rotate-90 transition"><i class="fas fa-times"></i></button>
+        <input type="text" id="search-input" class="search-input" placeholder="Ne aramıştınız? (Örn: Kolye)">
+        <p class="text-white mt-4 tracking-widest text-sm opacity-70">Aramak için ENTER'a basın</p>
+    </div>
+
+    <div id="contact-overlay" class="fixed inset-0 glass-overlay z-[5000] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative">
+            <button onclick="toggleContact()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-xl"><i class="fas fa-times"></i></button>
+            <h2 class="text-3xl brand-font text-purple-600 mb-2 text-center">Bize Ulaşın</h2>
+            <form id="contactForm" class="space-y-4">
+                <input type="text" id="cName" placeholder="Adınız Soyadınız" class="w-full p-3 border rounded-xl outline-none focus:border-purple-400 bg-gray-50" required>
+                <input type="email" id="cEmail" placeholder="E-Posta Adresiniz" class="w-full p-3 border rounded-xl outline-none focus:border-purple-400 bg-gray-50" required>
+                <textarea id="cMsg" placeholder="Mesajınız..." class="w-full p-3 border rounded-xl outline-none focus:border-purple-400 h-32 bg-gray-50 resize-none" required></textarea>
+                <button type="submit" class="w-full bg-purple-500 text-white py-3 rounded-xl font-bold hover:bg-purple-600 transition shadow-md">GÖNDER</button>
+            </form>
+        </div>
+    </div>
+    <div class="float-btn" onclick="toggleContact()" title="Bize Ulaşın"><i class="fas fa-comment-dots"></i></div>
+
+    <div id="toast" class="fixed top-24 right-5 bg-white border-l-4 border-green-400 px-6 py-4 rounded shadow-2xl transform translate-x-[150%] z-[3000] flex items-center gap-4">
+        <div class="text-green-500 text-2xl"><i class="fas fa-check-circle"></i></div>
+        <div><h4 class="font-bold text-gray-800 text-sm">Başarılı!</h4><p class="text-xs text-gray-500">Ürün sepete eklendi.</p></div>
+    </div>
+
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-96 bg-white shadow-2xl z-[2500] transform translate-x-full flex flex-col">
+        <div class="p-6 border-b flex justify-between items-center bg-gray-50">
+            <h2 class="font-bold text-xl text-gray-800 font-serif">Sepetim (<span class="badge-count">0</span>)</h2>
+            <button id="close-cart" class="text-gray-400 hover:text-red-500 transition"><i class="fas fa-times text-2xl"></i></button>
+        </div>
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-6"></div>
+        <div class="p-6 border-t bg-gray-50 space-y-3">
+            <div class="flex justify-between text-lg font-bold text-gray-800"><span>Toplam:</span><span id="cart-total">0,00 TL</span></div>
+            <button onclick="clearCart()" class="w-full bg-red-100 text-red-500 py-3 rounded-xl font-bold hover:bg-red-200 transition text-sm">SEPETİ BOŞALT</button>
+            <button onclick="window.location.href='odeme.html'" class="w-full bg-green-700 text-white py-4 rounded-xl font-bold hover:bg-green-800 transition shadow-lg">ÖDEMEYE GEÇ</button>
+        </div>
+    </div>
+    <div id="cart-overlay" class="fixed inset-0 bg-black bg-opacity-40 z-[2400] hidden backdrop-blur-sm"></div>
+
+    <nav class="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md z-50 border-b border-gray-100 px-6 py-4 flex justify-between items-center reveal">
+        <button id="mobile-menu-btn" class="lg:hidden text-2xl text-gray-700"><i class="fas fa-bars"></i></button>
+        <div class="hidden lg:flex gap-8 text-lg font-bold uppercase tracking-widest items-center" style="color: var(--text-dark);">
+            <a href="index.html" class="nav-link-effect">Ana Sayfa</a>
+            <div class="dropdown">
+                <a href="#" class="nav-link-effect" style="cursor: default;">Kategoriler <i class="fas fa-chevron-down text-xs ml-1"></i></a>
+                <div class="dropdown-content">
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px;"> <a href="kategori.html?kat=anneler" style="display:block;"><img src="isgorselleri/kupe1.png" style="width:100%; height:100px; object-fit:cover; border-radius:10px;"><span style="display:block; margin-top:5px; color:var(--color-purple); font-weight:700;">Anneler Günü</span></a>
+                        <a href="kategori.html?kat=sevgililer" style="display:block;"><img src="isgorselleri/kupe2.png" style="width:100%; height:100px; object-fit:cover; border-radius:10px;"><span style="display:block; margin-top:5px; color:var(--color-purple); font-weight:700;">Sevgililer Günü</span></a>
+                        <a href="kategori.html?kat=vazolar" style="display:block;"><img src="isgorselleri/kupe3.png" style="width:100%; height:100px; object-fit:cover; border-radius:10px;"><span style="display:block; margin-top:5px; color:var(--color-purple); font-weight:700;">Vazolar</span></a>
+                        <a href="kategori.html?kat=standlar" style="display:block;"><img src="isgorselleri/gomlek.png" style="width:100%; height:100px; object-fit:cover; border-radius:10px;"><span style="display:block; margin-top:5px; color:var(--color-purple); font-weight:700;">Standlar</span></a>
+                        <a href="kategori.html?kat=kisisel" style="display:block;"><img src="isgorselleri/model1.png" style="width:100%; height:100px; object-fit:cover; border-radius:10px;"><span style="display:block; margin-top:5px; color:var(--color-purple); font-weight:700;">Kişiselleştirilmiş</span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-5xl brand-font" style="color: var(--color-purple); line-height: 1;">
+            <a href="index.html" style="text-decoration:none; color:inherit;">Pomelita</a>
+        </div>
+        <div class="hidden lg:flex items-center gap-8 text-lg font-bold uppercase tracking-widest" style="color: var(--text-dark);">
+            <div class="flex gap-8"><a href="takilar.html" class="nav-link-effect">Takılar</a><a href="atolye.html" class="nav-link-effect">Atölye</a></div>
+            <div class="flex items-center gap-5 text-xl">
+                <button onclick="toggleSearch()" class="hover:text-purple-400 transition"><i class="fas fa-search"></i></button>
+                <a href="uye-giris.html" class="hover:text-purple-400 transition transform hover:scale-110" title="Giriş Yap / Üye Ol"><i class="far fa-user"></i></a>
+                <button id="cart-btn-desktop" class="hover:text-purple-400 transition relative"><i class="fas fa-shopping-bag"></i><span class="absolute -top-2 -right-2 bg-purple-400 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full badge-count">0</span></button>
+            </div>
+        </div>
+        <div class="lg:hidden flex items-center gap-4 text-xl">
+            <a href="uye-giris.html" class="hover:text-purple-400"><i class="far fa-user"></i></a>
+             <button id="cart-btn-mobile" class="relative"><i class="fas fa-shopping-bag"></i><span class="absolute -top-2 -right-2 bg-purple-400 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full badge-count">0</span></button>
+        </div>
+    </nav>
+
+    <div id="mobile-menu" class="fixed top-0 left-0 w-3/4 h-full bg-white z-[60] shadow-2xl p-6 flex flex-col gap-6 transform -translate-x-full transition-transform duration-300">
+        <div class="flex justify-between items-center mb-4"><span class="brand-font text-3xl text-purple-400">Pomelita</span><button id="close-menu-btn" class="text-2xl"><i class="fas fa-times"></i></button></div>
+        <a href="index.html" class="text-lg font-bold text-gray-700 border-b pb-2">ANA SAYFA</a>
+        <a href="takilar.html" class="text-lg font-bold text-gray-700 border-b pb-2">TAKILAR</a>
+        <a href="atolye.html" class="text-lg font-bold text-gray-700 border-b pb-2">ATÖLYE</a>
+        <a href="uye-giris.html" class="text-lg font-bold text-purple-500 border-b pb-2">GİRİŞ YAP / ÜYE OL</a>
+    </div>
+    <div id="menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-[55] hidden"></div>
+
+    <div class="marquee-strip mt-20 lg:mt-24"><div class="marquee-content">✨ YENİ ÜRÜNLER GELDİ &nbsp;&nbsp;•&nbsp;&nbsp; 👩‍🎨 KADIN GİRİŞİMCİ &nbsp;&nbsp;•&nbsp;&nbsp; 📦 ÜCRETSİZ KARGO &nbsp;&nbsp;•&nbsp;&nbsp; 💖 STİLİNİ YÜKSELT &nbsp;&nbsp;•&nbsp;&nbsp; ✨ YENİ ÜRÜNLER GELDİ</div></div>
+
+    <section class="hero reveal">
+        <video class="hero-video" autoplay muted loop playsinline>
+            <source src="isgorselleri/video.mp4" type="video/mp4">
+        </video>
+        <div class="hero-content reveal">
+            <p class="hero-script">Güneşin Ritmi</p>
+            <a href="takilar.html" class="btn-hero">Keşfet</a>
+        </div>
+    </section>
+
+    <div class="marquee-strip"><div class="marquee-content">✨ YENİ ÜRÜNLER GELDİ &nbsp;&nbsp;•&nbsp;&nbsp; 👩‍🎨 KADIN GİRİŞİMCİ &nbsp;&nbsp;•&nbsp;&nbsp; 📦 ÜCRETSİZ KARGO &nbsp;&nbsp;•&nbsp;&nbsp; 💖 STİLİNİ YÜKSELT &nbsp;&nbsp;•&nbsp;&nbsp; ✨ YENİ ÜRÜNLER GELDİ</div></div>
+
+    <div class="special-banner-wrapper reveal">
+        <div class="slideshow-container">
+            <img src="isgorselleri/kupe1.png"><img src="isgorselleri/kupe2.png"><img src="isgorselleri/model1.png">
+        </div>
+        <div class="content-overlay">
+            <header class="header-style"><h1 class="brand-font" style="text-transform: none;">Pomelita</h1></header>
+            <main class="main-style">
+                <p class="slogan">"Stilinizi Yükseltin"</p>
+                <a href="takilar.html" class="button-style">KOLEKSİYONU KEŞFET</a>
+            </main>
+        </div>
+    </div>
+
+    <div class="products-section-wrapper reveal">
+        <section class="products-section">
+            <h2 class="section-title">En Çok Satanlar</h2>
+            <div class="grid">
+                <div id="home-products-grid" class="contents"></div>
+            </div>
+        </section>
+    </div>
+
+    <section class="features-section reveal">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="feature-box"><div class="feature-icon"><i class="far fa-gem"></i></div><h3 class="feature-title">Orijinal Tasarım</h3><p class="feature-desc">Her parça atölyemizde özenle tasarlanır.</p></div>
+            <div class="feature-box"><div class="feature-icon"><i class="fas fa-hand-holding-heart"></i></div><h3 class="feature-title">El Yapımı</h3><p class="feature-desc">Usta ellerden çıkan benzersiz işçilik.</p></div>
+            <div class="feature-box"><div class="feature-icon"><i class="fas fa-shipping-fast"></i></div><h3 class="feature-title">Hızlı Kargo</h3><p class="feature-desc">Siparişleriniz özenle paketlenip yola çıkar.</p></div>
+        </div>
+    </section>
+
+    <div class="insta-section-wrapper reveal">
+        <section class="insta-section">
+            <h2 class="insta-title">Sosyal Medyada Bizi Takip Edin</h2>
+            <div class="insta-grid">
+                <div class="insta-item reveal"><img src="isgorselleri/kupe1.png"><div class="insta-overlay">📸</div></div>
+                <div class="insta-item reveal"><img src="isgorselleri/model1.png"><div class="insta-overlay">❤️</div></div>
+                <div class="insta-item reveal"><img src="isgorselleri/kupe2.png"><div class="insta-overlay">✨</div></div>
+                <div class="insta-item reveal"><img src="isgorselleri/gomlek.png"><div class="insta-overlay">🔥</div></div>
+                <div class="insta-item reveal"><img src="isgorselleri/kupe3.png"><div class="insta-overlay">👠</div></div>
+            </div>
+        </section>
+    </div>
+
+    <section class="newsletter-section reveal">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl brand-font mb-4">Bültenimize Abone Olun</h2>
+            <p class="mb-8 text-purple-100">Yeni koleksiyonlardan ve indirimlerden ilk siz haberdar olun.</p>
+            <form class="flex flex-col md:flex-row justify-center items-center"><input type="email" placeholder="E-posta adresiniz" class="newsletter-input"><button class="newsletter-btn">Kayıt Ol</button></form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 text-left">
+            <div class="footer-col"><h4 class="brand-font" style="font-size: 40px;">Pomelita</h4><p class="text-sm text-gray-500 mt-2">Stilinizi yükselten zarif dokunuşlar.</p></div>
+            <div class="footer-col"><h4>Kurumsal</h4><ul><li><a href="#">Hakkımızda</a></li><li><a href="#">Sürdürülebilirlik</a></li><li><a href="#">Kariyer</a></li></ul></div>
+            <div class="footer-col"><h4>Yardım</h4><ul><li><a href="#">Sıkça Sorulan Sorular</a></li><li><a href="#">Kargo ve Teslimat</a></li><li><a href="#">İade ve Değişim</a></li></ul></div>
+            <div class="footer-col"><h4>Bizi Takip Edin</h4><div class="social-links mt-4"><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-pinterest"></i></a></div></div>
+        </div>
+        <div class="border-t border-gray-200 mt-10 pt-6"><p class="text-gray-400">© 2024 Pomelita. Tüm hakları saklıdır.</p></div>
+    </footer>
+    
+    <script>
+        const searchOverlay = document.getElementById('search-overlay');
+        const contactOverlay = document.getElementById('contact-overlay');
+        const searchInput = document.getElementById('search-input');
+
+        function toggleSearch() { searchOverlay.classList.toggle('hidden'); if(!searchOverlay.classList.contains('hidden')) searchInput.focus(); }
+        function toggleContact() { contactOverlay.classList.toggle('hidden'); }
+
+        searchInput.addEventListener('keypress', function(e) { if(e.key === 'Enter') { const query = searchInput.value; if(query) window.location.href = `arama.html?q=${query}`; } });
+
+        document.getElementById('contactForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msg = { ad: document.getElementById('cName').value, email: document.getElementById('cEmail').value, mesaj: document.getElementById('cMsg').value };
+            try {
+                await fetch('/api/mesajlar', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(msg) });
+                alert('Mesajınız İletildi! En kısa sürede dönüş yapacağız.');
+                toggleContact();
+                e.target.reset();
+            } catch(err) { alert('Hata oluştu.'); }
+        });
+
+        async function loadHomeProducts() {
+            try { const res = await fetch('/api/urunler'); const products = await res.json();
+                document.getElementById('home-products-grid').innerHTML = products.slice(0, 8).map(p => `<a href="urun-detay.html?id=${p.id}" class="block no-underline text-inherit reveal"><div class="product-card"><div class="img-wrap"><img src="${p.img}" alt="${p.title}" onerror="this.src='https://via.placeholder.com/300'"></div><div class="info-wrap"><div class="p-title">${p.title}</div><div class="p-price">${p.price}</div><button class="btn-add" onclick="event.preventDefault(); addToCart('${p.id}', '${p.title}', '${p.price}', '${p.img}')">Sepete Ekle</button></div></div></a>`).join('');
+                document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+            } catch (err) { console.error(err); }
+        }
+
+        const observer = new IntersectionObserver((entries) => { entries.forEach((entry) => { if (entry.isIntersecting) { entry.target.classList.add('active'); } }); }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+        const menuBtn = document.getElementById('mobile-menu-btn'); const closeBtn = document.getElementById('close-menu-btn'); const mobileMenu = document.getElementById('mobile-menu'); const overlay = document.getElementById('menu-overlay');
+        function toggleMenu() { mobileMenu.classList.toggle('-translate-x-full'); if(!mobileMenu.classList.contains('-translate-x-full')) overlay.classList.remove('hidden'); else overlay.classList.add('hidden'); }
+        if(menuBtn) menuBtn.addEventListener('click', toggleMenu); if(closeBtn) closeBtn.addEventListener('click', toggleMenu); if(overlay) overlay.addEventListener('click', toggleMenu);
+
+        let sepet = JSON.parse(localStorage.getItem('pomelitaSepet')) || [];
+        const cartSidebar = document.getElementById('cart-sidebar'); const cartOverlay = document.getElementById('cart-overlay'); const closeCartBtn = document.getElementById('close-cart'); const openCartBtn = document.getElementById('cart-btn-desktop'); const openCartBtnMobile = document.getElementById('cart-btn-mobile');
+        function toggleCart() { cartSidebar.classList.toggle('translate-x-full'); cartOverlay.classList.toggle('hidden'); if (!cartSidebar.classList.contains('translate-x-full')) renderCart(); }
+        if(openCartBtn) openCartBtn.addEventListener('click', toggleCart); if(openCartBtnMobile) openCartBtnMobile.addEventListener('click', toggleCart); if(closeCartBtn) closeCartBtn.addEventListener('click', toggleCart); if(cartOverlay) cartOverlay.addEventListener('click', toggleCart);
+
+        function updateCart() { localStorage.setItem('pomelitaSepet', JSON.stringify(sepet)); const totalCount = sepet.reduce((acc, item) => acc + item.adet, 0); document.querySelectorAll('.badge-count').forEach(el => el.innerText = totalCount); }
+        function renderCart() {
+            const container = document.getElementById('cart-items'); const totalEl = document.getElementById('cart-total');
+            if (sepet.length === 0) { container.innerHTML = '<div class="text-center text-gray-400 mt-10">Sepet boş</div>'; totalEl.innerText = '0,00 TL'; return; }
+            let total = 0;
+            container.innerHTML = sepet.map(item => {
+                let priceNum = parseFloat(item.price.replace('TL','').replace('.','').replace(',','.')); if(isNaN(priceNum)) priceNum = 0; total += priceNum * item.adet;
+                return `<div class="flex gap-4 items-center border-b pb-4 last:border-0"><img src="${item.img}" class="w-16 h-16 object-cover rounded-md border"><div class="flex-1"><h4 class="text-sm font-bold text-gray-800 line-clamp-1">${item.title}</h4><p class="text-xs text-gray-500">${item.price}</p><div class="flex items-center gap-3 mt-2"><button onclick="changeQty('${item.id}', -1)" class="w-6 h-6 bg-gray-100 rounded-full text-xs font-bold hover:bg-gray-200">-</button><span class="text-sm font-semibold">${item.adet}</span><button onclick="changeQty('${item.id}', 1)" class="w-6 h-6 bg-gray-100 rounded-full text-xs font-bold hover:bg-gray-200">+</button></div></div><div class="text-right flex flex-col items-end"><p class="font-bold text-sm text-green-600">${(priceNum * item.adet).toLocaleString('tr-TR', {minimumFractionDigits: 2})} TL</p><button onclick="removeItem('${item.id}')" class="text-xs text-red-500 mt-2 hover:bg-red-50 p-1 rounded"><i class="fas fa-trash-alt"></i></button></div></div>`;
+            }).join('');
+            totalEl.innerText = total.toLocaleString('tr-TR', {minimumFractionDigits: 2}) + ' TL';
+        }
+        window.changeQty = function(id, change) { const item = sepet.find(i => i.id === id); if (item) { item.adet += change; if (item.adet <= 0) sepet = sepet.filter(i => i.id !== id); updateCart(); renderCart(); } };
+        window.removeItem = function(id) { sepet = sepet.filter(i => i.id !== id); updateCart(); renderCart(); }
+        window.clearCart = function() { sepet = []; updateCart(); renderCart(); }
+        function addToCart(id, title, price, img) { const existingItem = sepet.find(item => item.id === id); if (existingItem) existingItem.adet++; else sepet.push({ id, title, price, img, adet: 1 }); updateCart(); const t = document.getElementById('toast'); t.classList.remove('translate-x-[150%]'); setTimeout(() => t.classList.add('translate-x-[150%]'), 3000); renderCart(); }
+        
+        updateCart(); loadHomeProducts();
+    </script>
+</body>
+</html>
