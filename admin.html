@@ -4,6 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pomelita | Yönetim Paneli</title>
+    
+    <script>
+        // ŞİFREYİ BURADAN DEĞİŞTİREBİLİRSİN
+        var yoneticiSifresi = "1234"; 
+
+        if (sessionStorage.getItem('girisYapildi') !== 'evet') {
+            var girilen = prompt("🔒 Bu sayfaya sadece yöneticiler girebilir. Şifre nedir?");
+            
+            if (girilen === yoneticiSifresi) {
+                sessionStorage.setItem('girisYapildi', 'evet'); // Doğru bildi, içeri al
+            } else {
+                alert("Hatalı şifre! Ana sayfaya yönlendiriliyorsunuz...");
+                window.location.href = "/"; // Yanlışsa kov
+            }
+        }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sacramento&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -20,12 +37,10 @@
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
         .form-input { width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; margin-bottom: 15px; outline: none; }
         .form-textarea { width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; margin-bottom: 15px; outline: none; height: 100px; resize: none; font-family: 'Quicksand', sans-serif; }
-        .btn-save { background-color: #98DDCA; color: white; padding: 12px; border-radius: 8px; font-weight: 700; width: 100%; transition: 0.3s; }
+        .btn-save { background-color: #98DDCA; color: white; padding: 12px; border-radius: 8px; font-weight: 700; width: 100%; transition: 0.3s; cursor: pointer; }
         .btn-save:hover { opacity: 0.9; }
         .btn-save:disabled { background-color: #ccc; cursor: not-allowed; }
         .settings-group { background: white; padding: 25px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #E5E7EB; }
-        
-        /* HATA DÜZELTİLDİ: items-center yerine align-items: center yapıldı */
         .settings-title { font-weight: 700; color: #9F8CC2; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; font-size: 1.1rem; } 
     </style>
 </head>
@@ -91,8 +106,8 @@
                         </select>
                         <label class="text-xs font-bold text-purple-500 uppercase">SEO Açıklaması</label>
                         <textarea id="pDesc" class="form-textarea" placeholder="Ürün açıklaması..."></textarea>
-                        <label class="text-xs font-bold text-gray-400 uppercase">Görsel Yolu</label>
-                        <input type="text" id="pImg" class="form-input" placeholder="isgorselleri/..." required>
+                        <label class="text-xs font-bold text-gray-400 uppercase">Görsel Yolu (Link)</label>
+                        <input type="text" id="pImg" class="form-input" placeholder="https://..." required>
                         <button type="submit" class="btn-save">KAYDET</button>
                     </form>
                 </div>
@@ -182,10 +197,10 @@
             try {
                 const res = await fetch('/api/dashboard');
                 const data = await res.json();
-                document.getElementById('d-ciro').innerText = data.toplamCiro.toLocaleString('tr-TR') + ' TL';
-                document.getElementById('d-siparis').innerText = data.toplamSiparis;
-                document.getElementById('d-urun').innerText = data.toplamUrun;
-                document.getElementById('d-mesaj').innerText = data.okunmamisMesaj;
+                document.getElementById('d-ciro').innerText = (data.toplamCiro || 0).toLocaleString('tr-TR') + ' TL';
+                document.getElementById('d-siparis').innerText = data.toplamSiparis || 0;
+                document.getElementById('d-urun').innerText = data.toplamUrun || 0;
+                document.getElementById('d-mesaj').innerText = data.okunmamisMesaj || 0;
                 if (data.kritikStok > 0) document.getElementById('stok-uyari').classList.remove('hidden');
             } catch (e) { console.error(e); }
         }
@@ -196,16 +211,18 @@
                 const res = await fetch('/api/urunler');
                 const data = await res.json();
                 const tbody = document.getElementById('productList');
-                if(data.length === 0) {
+                if(!data || data.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-400">Liste Boş</td></tr>';
                     return;
                 }
                 tbody.innerHTML = data.map(p => `
                     <tr class="border-b last:border-0 hover:bg-gray-50">
-                        <td class="py-3 pl-2"><img src="${p.img}" class="w-10 h-10 rounded object-cover border" onerror="this.src='https://via.placeholder.com/50'"></td>
-                        <td class="py-3 font-bold text-sm text-gray-700">${p.title}</td>
+                        <td class="py-3 pl-2 flex items-center gap-2">
+                            <img src="${p.img}" class="w-10 h-10 rounded object-cover border" onerror="this.src='https://via.placeholder.com/50'">
+                            <span class="text-sm font-bold text-gray-700">${p.title}</span>
+                        </td>
                         <td class="py-3 font-bold">${p.stok || 0} Adet</td>
-                        <td class="py-3"><button onclick="deleteProduct('${p.id}')" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button></td>
+                        <td class="py-3"><button onclick="deleteProduct('${p._id}')" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button></td>
                     </tr>
                 `).join('');
             } catch(e) { console.error(e); }
@@ -214,7 +231,9 @@
         document.getElementById('addForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.querySelector('.btn-save');
-            btn.innerText = "Kaydediliyor..."; btn.disabled = true;
+            const eskiYazi = btn.innerText;
+            btn.innerText = "⏳ Kaydediliyor..."; btn.disabled = true;
+
             const p = { 
                 title: document.getElementById('pName').value, 
                 price: document.getElementById('pPrice').value, 
@@ -224,12 +243,19 @@
                 img: document.getElementById('pImg').value 
             };
             try {
-                await fetch('/api/urunler', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(p)});
+                const response = await fetch('/api/urunler', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(p)});
+                
+                if(!response.ok) throw new Error("Sunucu Hatası: " + response.status);
+
                 e.target.reset(); 
-                alert('Eklendi'); 
+                alert('✅ Eklendi'); 
                 loadProducts();
-            } catch(err) { alert('Hata'); }
-            finally { btn.innerText = "KAYDET"; btn.disabled = false; }
+            } catch(err) { 
+                console.error(err);
+                alert('❌ Hata! Render şifrenizi veya bağlantınızı kontrol edin.'); 
+            } finally { 
+                btn.innerText = eskiYazi; btn.disabled = false; 
+            }
         });
 
         async function deleteProduct(id) {
@@ -239,15 +265,15 @@
             }
         }
 
-        // --- SİPARİŞLER (YENİLENMİŞ VERSİYON) ---
+        // --- SİPARİŞLER ---
         async function loadOrders() {
             try {
                 const res = await fetch('/api/siparisler');
                 const data = await res.json();
-                document.getElementById('order-badge').innerText = data.length;
+                document.getElementById('order-badge').innerText = data.length || 0;
                 const container = document.getElementById('orderList');
                 
-                if(data.length === 0) {
+                if(!data || data.length === 0) {
                     container.innerHTML = '<div class="text-center py-10 text-gray-400">Sipariş yok.</div>';
                     return;
                 }
@@ -262,28 +288,26 @@
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-4 transition hover:shadow-md">
                         <div class="flex justify-between items-start mb-4">
                             <div>
-                                <h4 class="font-bold text-lg text-purple-600">${o.musteri.ad} ${o.musteri.soyad}</h4>
+                                <h4 class="font-bold text-lg text-purple-600">${o.musteri?.ad} ${o.musteri?.soyad}</h4>
                                 <p class="text-xs text-gray-400"><i class="far fa-clock"></i> ${o.tarih}</p>
-                                <p class="text-xs text-gray-500 mt-1"><i class="fas fa-map-marker-alt"></i> ${o.musteri.il} / ${o.musteri.tel}</p>
+                                <p class="text-xs text-gray-500 mt-1"><i class="fas fa-map-marker-alt"></i> ${o.musteri?.il} / ${o.musteri?.tel}</p>
                             </div>
                             <div class="text-right">
-                                <div class="font-bold text-xl text-green-600 mb-2">${o.toplamTutar.toLocaleString('tr-TR')} TL</div>
+                                <div class="font-bold text-xl text-green-600 mb-2">${(o.toplamTutar||0).toLocaleString('tr-TR')} TL</div>
                                 <span class="px-3 py-1 rounded-full text-xs font-bold ${statusColor}">${o.durum || 'Yeni Sipariş'}</span>
                             </div>
                         </div>
-                        
                         <div class="bg-gray-50 p-3 rounded-lg text-sm text-gray-600 mb-4">
-                            ${o.sepet.map(item => `
+                            ${o.sepet?.map(item => `
                                 <div class="flex justify-between border-b border-gray-200 last:border-0 py-1">
                                     <span>${item.adet}x ${item.title}</span>
                                     <span class="font-bold">${item.price}</span>
                                 </div>
-                            `).join('')}
+                            `).join('') || 'Sepet boş'}
                         </div>
-
                         <div class="flex justify-end items-center gap-3 bg-purple-50 p-2 rounded-lg">
                             <span class="text-xs font-bold text-purple-800 uppercase">Durum Güncelle:</span>
-                            <select onchange="updateOrderStatus('${o.id}', this.value)" class="text-sm border-none bg-white p-2 rounded shadow-sm outline-none cursor-pointer hover:text-purple-600">
+                            <select onchange="updateOrderStatus('${o._id}', this.value)" class="text-sm border-none bg-white p-2 rounded shadow-sm outline-none cursor-pointer hover:text-purple-600">
                                 <option value="" disabled selected>Seçiniz...</option>
                                 <option value="Hazırlanıyor">📦 Hazırlanıyor</option>
                                 <option value="Kargolandı">🚚 Kargolandı</option>
@@ -306,7 +330,7 @@
                     body: JSON.stringify({ durum: newStatus })
                 });
                 alert('Durum güncellendi!');
-                loadOrders(); // Listeyi yenile
+                loadOrders(); 
             } catch(e) { alert('Hata oluştu'); }
         }
 
@@ -320,7 +344,7 @@
                     <tr class="border-b">
                         <td class="py-3 font-bold font-mono">${c.kod}</td>
                         <td class="py-3">%${c.oran}</td>
-                        <td class="py-3"><button onclick="deleteCoupon('${c.id}')" class="text-red-400"><i class="fas fa-trash"></i></button></td>
+                        <td class="py-3"><button onclick="deleteCoupon('${c._id}')" class="text-red-400"><i class="fas fa-trash"></i></button></td>
                     </tr>
                 `).join('');
             } catch(e) { console.error(e); }
@@ -343,7 +367,7 @@
                 const res = await fetch('/api/mesajlar');
                 const data = await res.json();
                 const container = document.getElementById('messageList');
-                if(data.length === 0) {
+                if(!data || data.length === 0) {
                     container.innerHTML = '<div class="text-center text-gray-400">Mesaj yok.</div>';
                     return;
                 }
