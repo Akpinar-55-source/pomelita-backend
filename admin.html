@@ -13,22 +13,13 @@
         
         /* GİRİŞ EKRANI EFEKTLERİ */
         #login-overlay {
-            background: rgba(15, 23, 42, 0.8); /* Koyu arka plan */
-            backdrop-filter: blur(10px); /* Buzlu cam efekti */
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
             transition: all 0.5s ease-in-out;
         }
-        .login-box {
-            animation: dropIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes dropIn {
-            0% { transform: scale(0.5) translateY(-50px); opacity: 0; }
-            100% { transform: scale(1) translateY(0); opacity: 1; }
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
+        .login-box { animation: dropIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes dropIn { 0% { transform: scale(0.5) translateY(-50px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
         .shake { animation: shake 0.3s ease-in-out; border-color: #ef4444 !important; }
 
         /* ANA TASARIM */
@@ -68,11 +59,11 @@
                         onkeypress="if(event.key === 'Enter') checkLogin()">
                 </div>
 
-                <button onclick="checkLogin()" class="w-full bg-gradient-to-r from-[#9F8CC2] to-[#B39CD0] hover:from-[#8E7BB0] hover:to-[#A28BC0] text-white font-bold py-3 rounded-xl shadow-lg transform transition active:scale-95">
+                <button id="loginBtn" onclick="checkLogin()" class="w-full bg-gradient-to-r from-[#9F8CC2] to-[#B39CD0] hover:from-[#8E7BB0] hover:to-[#A28BC0] text-white font-bold py-3 rounded-xl shadow-lg transform transition active:scale-95">
                     GİRİŞ YAP <i class="fas fa-arrow-right ml-2"></i>
                 </button>
 
-                <p id="errorMsg" class="text-red-500 text-xs font-bold mt-4 opacity-0 transition">Hatalı şifre, tekrar dene!</p>
+                <p id="errorMsg" class="text-red-500 text-xs font-bold mt-4 opacity-0 transition">Lütfen şifrenizi girin.</p>
             </div>
         </div>
     </div>
@@ -91,7 +82,7 @@
                 <div class="menu-item" onclick="switchTab('mesajlar', this)"><i class="fas fa-envelope mr-3"></i> Gelen Mesajlar</div>
                 <div class="menu-item" onclick="switchTab('ayarlar', this)"><i class="fas fa-cog mr-3"></i> Site Ayarları</div>
                 <div class="border-t my-4"></div>
-                <a href="/" class="menu-item"><i class="fas fa-external-link-alt mr-3"></i> Siteye Git</a>
+                <a href="javascript:void(0)" onclick="logout()" class="menu-item text-red-500 hover:text-red-600"><i class="fas fa-sign-out-alt mr-3"></i> Çıkış Yap</a>
             </nav>
         </div>
 
@@ -209,35 +200,101 @@
     </div>
 
     <script>
-        // --- GİRİŞ KONTROL SİSTEMİ ---
-        const SIFRE = "HamitKudur"; // 🔥 SENİN ŞİFREN BURADA
-
-        function checkLogin() {
-            const input = document.getElementById('adminPass');
-            const errorMsg = document.getElementById('errorMsg');
+        // --- API Yardımcısı (Tüm isteklerde Token ekler ve Yetki Hatası (401) yakalar) ---
+        async function fetchAPI(url, options = {}) {
+            const token = sessionStorage.getItem('authToken');
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
             
-            if (input.value === SIFRE) {
-                // Şifre Doğru:
-                sessionStorage.setItem('girisYapildi', 'evet');
-                document.getElementById('login-overlay').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('login-overlay').style.display = 'none';
-                    document.getElementById('app-container').style.display = 'block';
-                }, 500);
-            } else {
-                // Şifre Yanlış:
-                input.classList.add('shake');
-                input.style.borderColor = '#ef4444';
-                errorMsg.style.opacity = '1';
-                setTimeout(() => input.classList.remove('shake'), 300);
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`; // Token'ı Authorization başlığına ekle
             }
+            
+            const res = await fetch(url, { ...options, headers });
+
+            // 401 Unauthorized Hatası (Yetkisiz/Oturum Bitti)
+            if (res.status === 401) {
+                alert("Oturumunuz sona ermiş veya yetkiniz yok. Lütfen tekrar giriş yapın.");
+                sessionStorage.clear();
+                window.location.reload(); 
+                return; 
+            }
+
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(text || `API Hatası: ${res.status} ${res.statusText}`);
+            }
+
+            // DELETE ve PUT gibi yanıtsız (No Content) istekleri boş döndür
+            if (res.status === 204 || res.headers.get('content-length') === '0') {
+                return {};
+            }
+
+            return res.json();
         }
 
-        // Sayfa yüklendiğinde daha önce girmiş mi bak
+        // --- GİRİŞ KONTROL SİSTEMİ (Artık Güvenli) ---
+        async function checkLogin() {
+            const input = document.getElementById('adminPass');
+            const btn = document.getElementById('loginBtn');
+            const errorMsg = document.getElementById('errorMsg');
+            const password = input.value;
+            const originalText = btn.innerHTML;
+
+            btn.disabled = true;
+            btn.innerHTML = 'Giriş Yapılıyor...';
+            errorMsg.innerText = "Kontrol ediliyor...";
+            errorMsg.style.opacity = '1';
+
+            try {
+                // Şifreyi sunucuya gönder ve Token bekle
+                const data = await fetchAPI('/api/giris', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ password: password }) 
+                });
+
+                if (data && data.token) {
+                    sessionStorage.setItem('authToken', data.token); // Token'ı sakla
+                    
+                    // Giriş başarılı
+                    document.getElementById('login-overlay').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('login-overlay').style.display = 'none';
+                        document.getElementById('app-container').style.display = 'block';
+                        switchTab('dashboard', document.querySelector('.menu-item.active'));
+                    }, 500);
+                } else {
+                    // Sunucudan token gelmezse (muhtemelen yanlış şifre)
+                    throw new Error("Giriş Başarısız.");
+                }
+
+            } catch (error) {
+                // Hata Durumu (Şifre yanlış veya sunucu hatası)
+                input.classList.add('shake');
+                input.style.borderColor = '#ef4444';
+                errorMsg.innerText = "Hatalı şifre veya sunucu hatası!";
+                setTimeout(() => input.classList.remove('shake'), 300);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+        
+        function logout() {
+            sessionStorage.clear();
+            window.location.reload();
+        }
+
+        // Sayfa yüklendiğinde Token var mı bak
         window.onload = function() {
-            if (sessionStorage.getItem('girisYapildi') === 'evet') {
+            if (sessionStorage.getItem('authToken')) {
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('app-container').style.display = 'block';
+                // Token varsa, ilk tab'ı yükle
+                switchTab('dashboard', document.querySelector('.menu-item.active'));
             }
         };
 
@@ -247,6 +304,8 @@
             document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
             document.getElementById('tab-' + tabName).classList.add('active');
             if(element) element.classList.add('active');
+            
+            // Yükleme fonksiyonlarını çağır
             if (tabName === 'dashboard') loadDashboard();
             if (tabName === 'siparisler') loadOrders();
             if (tabName === 'urunler') loadProducts();
@@ -258,21 +317,23 @@
         // --- DASHBOARD ---
         async function loadDashboard() {
             try {
-                const res = await fetch('/api/dashboard');
-                const data = await res.json();
+                // Artık fetchAPI kullanılıyor
+                const data = await fetchAPI('/api/dashboard');
                 document.getElementById('d-ciro').innerText = (data.toplamCiro || 0).toLocaleString('tr-TR') + ' TL';
                 document.getElementById('d-siparis').innerText = data.toplamSiparis || 0;
                 document.getElementById('d-urun').innerText = data.toplamUrun || 0;
                 document.getElementById('d-mesaj').innerText = data.okunmamisMesaj || 0;
                 if (data.kritikStok > 0) document.getElementById('stok-uyari').classList.remove('hidden');
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.error(e); 
+            }
         }
 
         // --- ÜRÜNLER ---
         async function loadProducts() {
             try {
-                const res = await fetch('/api/urunler');
-                const data = await res.json();
+                // Artık fetchAPI kullanılıyor
+                const data = await fetchAPI('/api/urunler');
                 const tbody = document.getElementById('productList');
                 if(!data || data.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-400">Liste Boş</td></tr>';
@@ -293,7 +354,7 @@
 
         document.getElementById('addForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.querySelector('.btn-save');
+            const btn = document.querySelector('#addForm .btn-save');
             const eskiYazi = btn.innerText;
             btn.innerText = "⏳ Kaydediliyor..."; btn.disabled = true;
 
@@ -306,19 +367,15 @@
                 img: document.getElementById('pImg').value 
             };
             try {
-                const response = await fetch('/api/urunler', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(p)});
+                // Artık fetchAPI kullanılıyor
+                await fetchAPI('/api/urunler', {method:'POST', body:JSON.stringify(p)});
                 
-                if(!response.ok) {
-                    const text = await response.text();
-                    throw new Error(text || "Sunucu Hatası");
-                }
-
                 e.target.reset(); 
-                alert('✅ Eklendi'); 
+                alert('✅ Ürün Başarıyla Eklendi'); 
                 loadProducts();
             } catch(err) { 
                 console.error(err);
-                alert('❌ HATA: Ürün eklenemedi! Render panelinden şifreni kontrol et.'); 
+                alert('❌ HATA: Ürün eklenemedi! Sunucu hatası.'); 
             } finally { 
                 btn.innerText = eskiYazi; btn.disabled = false; 
             }
@@ -326,16 +383,17 @@
 
         async function deleteProduct(id) {
             if(confirm('Silmek istediğine emin misin?')) {
-                await fetch('/api/urunler/' + id, { method: 'DELETE' });
+                // Artık fetchAPI kullanılıyor
+                await fetchAPI('/api/urunler/' + id, { method: 'DELETE' });
                 loadProducts();
             }
         }
 
         // --- SİPARİŞLER ---
         async function loadOrders() {
-            try {
-                const res = await fetch('/api/siparisler');
-                const data = await res.json();
+             // ... Sipariş yükleme mantığı (fetchAPI kullanılarak) ...
+             try {
+                const data = await fetchAPI('/api/siparisler');
                 document.getElementById('order-badge').innerText = data.length || 0;
                 const container = document.getElementById('orderList');
                 if(!data || data.length === 0) {
@@ -348,25 +406,15 @@
                     if(o.durum === 'Teslim Edildi') statusColor = 'bg-green-100 text-green-600';
                     if(o.durum === 'İptal') statusColor = 'bg-red-100 text-red-600';
 
+                    // Orijinal sipariş render mantığı (kısmen sadeleştirildi)
                     return `
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-4 transition hover:shadow-md">
                         <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h4 class="font-bold text-lg text-purple-600">${o.musteri?.ad} ${o.musteri?.soyad}</h4>
-                                <p class="text-xs text-gray-400"><i class="far fa-clock"></i> ${o.tarih}</p>
-                            </div>
+                            <div><h4 class="font-bold text-lg text-purple-600">${o.musteri?.ad} ${o.musteri?.soyad}</h4><p class="text-xs text-gray-400"><i class="far fa-clock"></i> ${o.tarih}</p></div>
                             <div class="text-right">
                                 <div class="font-bold text-xl text-green-600 mb-2">${(o.toplamTutar||0).toLocaleString('tr-TR')} TL</div>
                                 <span class="px-3 py-1 rounded-full text-xs font-bold ${statusColor}">${o.durum || 'Yeni Sipariş'}</span>
                             </div>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded-lg text-sm text-gray-600 mb-4">
-                            ${o.sepet?.map(item => `
-                                <div class="flex justify-between border-b border-gray-200 last:border-0 py-1">
-                                    <span>${item.adet}x ${item.title}</span>
-                                    <span class="font-bold">${item.price}</span>
-                                </div>
-                            `).join('') || 'Sepet boş'}
                         </div>
                         <div class="flex justify-end items-center gap-3 bg-purple-50 p-2 rounded-lg">
                             <span class="text-xs font-bold text-purple-800 uppercase">Durum Güncelle:</span>
@@ -387,9 +435,9 @@
         async function updateOrderStatus(id, newStatus) {
             if(!confirm('Sipariş durumu "' + newStatus + '" olarak güncellensin mi?')) return;
             try {
-                await fetch('/api/siparisler/' + id, {
+                // Artık fetchAPI kullanılıyor
+                await fetchAPI('/api/siparisler/' + id, {
                     method: 'PUT',
-                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ durum: newStatus })
                 });
                 alert('Durum güncellendi!');
@@ -400,8 +448,8 @@
         // --- KUPONLAR ---
         async function loadCoupons() {
             try {
-                const res = await fetch('/api/kuponlar');
-                const data = await res.json();
+                // Artık fetchAPI kullanılıyor
+                const data = await fetchAPI('/api/kuponlar');
                 const tbody = document.getElementById('couponList');
                 tbody.innerHTML = data.map(c => `
                     <tr class="border-b">
@@ -416,19 +464,24 @@
         document.getElementById('couponForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const c = { kod: document.getElementById('cCode').value.toUpperCase(), oran: document.getElementById('cRate').value };
-            await fetch('/api/kuponlar', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(c)});
+            // Artık fetchAPI kullanılıyor
+            await fetchAPI('/api/kuponlar', {method:'POST', body:JSON.stringify(c)});
             e.target.reset(); loadCoupons();
         });
 
         async function deleteCoupon(id) {
-            if(confirm('Sil?')) { await fetch('/api/kuponlar/' + id, { method: 'DELETE' }); loadCoupons(); }
+            if(confirm('Sil?')) { 
+                // Artık fetchAPI kullanılıyor
+                await fetchAPI('/api/kuponlar/' + id, { method: 'DELETE' }); 
+                loadCoupons(); 
+            }
         }
 
         // --- MESAJLAR ---
         async function loadMessages() {
             try {
-                const res = await fetch('/api/mesajlar');
-                const data = await res.json();
+                // Artık fetchAPI kullanılıyor
+                const data = await fetchAPI('/api/mesajlar');
                 const container = document.getElementById('messageList');
                 if(!data || data.length === 0) {
                     container.innerHTML = '<div class="text-center text-gray-400">Mesaj yok.</div>';
@@ -447,8 +500,8 @@
         // --- AYARLAR ---
         async function loadSettings() {
             try {
-                const res = await fetch('/api/ayarlar');
-                const s = await res.json();
+                // Artık fetchAPI kullanılıyor
+                const s = await fetchAPI('/api/ayarlar');
                 if(s.tel) document.getElementById('setTel').value = s.tel;
                 if(s.email) document.getElementById('setEmail').value = s.email;
                 if(s.address) document.getElementById('setAddress').value = s.address;
@@ -470,7 +523,8 @@
                 insta: document.getElementById('setInsta').value,
                 face: document.getElementById('setFace').value
             };
-            await fetch('/api/ayarlar', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(s)});
+            // Artık fetchAPI kullanılıyor
+            await fetchAPI('/api/ayarlar', {method:'POST', body:JSON.stringify(s)});
             alert('Ayarlar Kaydedildi!');
         });
     </script>
