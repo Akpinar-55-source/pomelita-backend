@@ -2,11 +2,11 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs'); // Şifre Hashing için
-const jwt = require('jsonwebtoken'); // Token oluşturmak ve doğrulamak için
+const bcrypt = require('bcryptjs'); 
+const jwt = require('jsonwebtoken'); 
 require('dotenv').config(); 
 
-const authMiddleware = require('./auth'); // Hata çözümü: auth.js artık kök dizinden yükleniyor
+const authMiddleware = require('./auth'); // auth.js artık kök dizinden yükleniyor
 
 const app = express();
 
@@ -32,14 +32,13 @@ const KullaniciSchema = new mongoose.Schema({
     kayitTarihi: { type: String, default: () => new Date().toLocaleString('tr-TR') }
 });
 
-// Şifreyi Kaydetmeden önce HASH'le (bcrypt ile)
-KullaniciSchema.pre('save', async function(next) {
+// 🔥 DÜZELTME: next() çağrıları kaldırıldı (Asenkron hook'lar için doğru kullanım)
+KullaniciSchema.pre('save', async function() { 
     if (!this.isModified('sifre')) {
-        return next();
+        return; 
     }
     const salt = await bcrypt.genSalt(10);
     this.sifre = await bcrypt.hash(this.sifre, salt);
-    next();
 });
 
 const Kullanici = mongoose.model('Kullanici', KullaniciSchema, 'kullanicilar');
@@ -197,8 +196,7 @@ app.post('/api/siparisler', async (req, res) => {
 
 
 // --- 🔥 KORUMALI (AUTH GEREKTİREN) API ROTLARI ---
-// authMiddleware ile admin rotalarını koruma altına alıyoruz!
-app.use('/api', authMiddleware); // <--- Hata çözüldü: authMiddleware artık fonksiyon olarak geliyor
+app.use('/api', authMiddleware); 
 
 // Admin Kontrolü için yardımcı Middleware
 const adminCheck = (req, res, next) => {
@@ -208,7 +206,7 @@ const adminCheck = (req, res, next) => {
     next();
 };
 
-// Admin İşlemleri
+// Admin İşlemleri (Sipariş Güncelleme)
 app.put('/api/siparisler/:id', adminCheck, async (req, res) => {
     try {
         await Siparis.findByIdAndUpdate(req.params.id, { durum: req.body.durum });
@@ -276,8 +274,6 @@ app.post('/api/ayarlar', adminCheck, async (req, res) => {
 
 // KULLANICI İŞLEMİ (Token ile siparişleri güvenli çekme)
 app.get('/api/siparislerim', async (req, res) => {
-    // Önce Token kontrolü yapılır (app.use('/api', authMiddleware) sayesinde),
-    // sonra Token'dan gelen e-posta ile filtreleme yapılır.
     const email = req.user.email; 
     
     try {
