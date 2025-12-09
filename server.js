@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs'); // Şifre Hashing için
 const jwt = require('jsonwebtoken'); // Token oluşturmak ve doğrulamak için
 require('dotenv').config(); 
 
-const authMiddleware = require('./middleware/auth'); // Yeni oluşturduğumuz Middleware'ı dahil et
+const authMiddleware = require('./auth'); // Hata çözümü: auth.js artık kök dizinden yükleniyor
 
 const app = express();
 
@@ -16,7 +16,6 @@ mongoose.connect(process.env.MONGO_URI, {
 })
 .then(() => {
     console.log('✅ MongoDB Atlas Bağlantısı Başarılı!');
-    // Admin kullanıcısının varlığını kontrol et ve yoksa varsayılan admini oluştur
     initializeAdminUser(); 
 })
 .catch(err => console.error('❌ MongoDB Bağlantı Hatası! Lütfen .env dosyasını kontrol edin. \n Hata Detayı:', err));
@@ -28,18 +27,16 @@ const KullaniciSchema = new mongoose.Schema({
     ad: String,
     soyad: String,
     email: { type: String, unique: true, required: true },
-    sifre: { type: String, required: true }, // Artık Hashed şifre tutacak
-    rol: { type: String, default: 'kullanici' }, // Yeni: Rol eklendi (admin/kullanici)
+    sifre: { type: String, required: true }, 
+    rol: { type: String, default: 'kullanici' }, 
     kayitTarihi: { type: String, default: () => new Date().toLocaleString('tr-TR') }
 });
 
 // Şifreyi Kaydetmeden önce HASH'le (bcrypt ile)
 KullaniciSchema.pre('save', async function(next) {
-    // Eğer şifre alanı değiştirilmemişse (örneğin sadece ad güncelleniyorsa)
     if (!this.isModified('sifre')) {
         return next();
     }
-    // Şifreyi Hash'le
     const salt = await bcrypt.genSalt(10);
     this.sifre = await bcrypt.hash(this.sifre, salt);
     next();
@@ -58,18 +55,17 @@ const Mesaj = mongoose.model('Mesaj', new mongoose.Schema({ ad: String, email: S
 const Ayar = mongoose.model('Ayar', new mongoose.Schema({ tel: String, email: String, address: String, analytics: String, ads: String, insta: String, face: String }), 'ayarlar');
 
 
-// Admin Kullanıcısını Başlatma Fonksiyonu (Sadece 1 kere çalışmalı)
+// Admin Kullanıcısını Başlatma Fonksiyonu 
 async function initializeAdminUser() {
-    const adminEmail = "admin@pomelita.com"; // Varsayılan admin e-postası
+    const adminEmail = "admin@pomelita.com"; 
     const existingAdmin = await Kullanici.findOne({ email: adminEmail });
     if (!existingAdmin) {
         console.log("⚙️ Varsayılan admin kullanıcısı oluşturuluyor...");
-        // Şifre hash'leneceği için buraya plain-text şifre giriyoruz (ÖNEMLİ: Bu şifreyi .env'de tutmak daha güvenlidir!)
         const newAdmin = new Kullanici({ 
             ad: "Pomelita", 
             soyad: "Admin", 
             email: adminEmail, 
-            sifre: "cokgizliadmin123", // Varsayılan şifre (pre-save hook ile hash'lenecek)
+            sifre: "cokgizliadmin123", 
             rol: 'admin' 
         });
         await newAdmin.save();
@@ -89,7 +85,7 @@ const DOMAIN = 'https://pomelita.com';
 
 // --- SAYFALAR ---
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html'))); // Admin sayfa korumasız kalır
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 
 // --- SEO: OTOMATİK SITEMAP (Değişmedi) ---
 app.get('/sitemap.xml', async (req, res) => {
@@ -120,18 +116,26 @@ app.get('/sitemap.xml', async (req, res) => {
 
 
 // --- 🔥 KORUMASIZ (PUBLIC) API ROTLARI ---
-// Bu rotalara herkes erişebilir (Site üzerindeki formlar, ürün listeleme)
 app.post('/api/kayit', async (req, res) => {
     const { ad, soyad, email, sifre } = req.body;
     try {
-        // KullaniciSchema'daki pre('save') hook'u şifreyi hash'leyecek
         const yeniUye = new Kullanici({ ad, soyad, email, sifre, rol: 'kullanici' });
         await yeniUye.save();
-        res.json({ message: 'Kayıt Başarılı', user: yeniUye.toObject() });
+        
+        // Kayıttan hemen sonra Token oluşturup gönderelim
+        const token = jwt.sign(
+            { id: yeniUye._id, email: yeniUye.email, rol: yeniUye.rol }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '7d' } 
+        );
+        
+        const { sifre: hashedPassword, ...safeUser } = yeniUye.toObject(); 
+
+        res.json({ message: 'Kayıt Başarılı', token, user: safeUser });
     } catch(e) { res.status(400).json({ error: e.code === 11000 ? 'Bu e-posta zaten kayıtlı.' : 'Kayıt Hatası.' }); }
 });
 
-// GİRİŞ ROTASI (Artık şifre kontrolü HASH ile yapılıyor ve Token döndürülüyor)
+// GİRİŞ ROTASI (Şifre kontrolü HASH ile yapılıyor ve Token döndürülüyor)
 app.post('/api/giris', async (req, res) => {
     const { email, sifre } = req.body;
     try {
@@ -140,29 +144,25 @@ app.post('/api/giris', async (req, res) => {
             return res.status(401).json({ error: 'Hatalı e-posta veya şifre!' });
         }
 
-        // Hash'lenmiş şifreyi karşılaştır
         const isMatch = await bcrypt.compare(sifre, user.sifre);
         if (!isMatch) {
             return res.status(401).json({ error: 'Hatalı e-posta veya şifre!' });
         }
         
-        // Şifre doğruysa JWT Token oluştur
         const token = jwt.sign(
             { id: user._id, email: user.email, rol: user.rol }, 
             process.env.JWT_SECRET, 
-            { expiresIn: '7d' } // Token 7 gün geçerli olsun
+            { expiresIn: '7d' } 
         );
 
-        // Şifreyi yanıt objesinden kaldır
         const { sifre: hashedPassword, ...safeUser } = user.toObject(); 
 
-        // Token ve kullanıcı bilgisini döndür
         res.json({ message: 'Giriş Başarılı', token, user: safeUser });
 
     } catch(e) { res.status(500).json({ error: 'Sunucu Hatası' }); }
 });
 
-// Ürünleri herkese açık listeleme (Site arama ve listeleme için)
+// Ürünleri herkese açık listeleme 
 app.get('/api/urunler', async (req, res) => {
     try {
         const urunler = await Urun.find({});
@@ -178,35 +178,45 @@ app.post('/api/mesajlar', async (req, res) => {
     } catch(e) { res.status(500).json({ error: 'Hata' }); } 
 });
 
-// Kuponları herkese açık listeleme (Sadece kontrol için, admin işlemi yapmıyor)
+// Kuponları herkese açık listeleme (Sadece kontrol için)
 app.get('/api/kuponlar', async (req, res) => { 
     try { 
-        // Kupon kodunu sorgulayan bir rota yapılabilir, tüm listeyi değil
-        // Sadece kupon kodlarını döndürelim (Oran gizli kalsın)
         const kuponlar = await Kupon.find({}).select('kod oran'); 
         res.json(kuponlar); 
     } catch(e) { res.status(500).json([]); } 
 });
 
+// Sipariş kaydetme (Ödeme sayfası)
+app.post('/api/siparisler', async (req, res) => {
+    try {
+        const yeniSiparis = new Siparis({...req.body, tarih: new Date().toLocaleString('tr-TR')});
+        await yeniSiparis.save();
+        res.json({ message: 'Sipariş Alındı' });
+    } catch(e) { res.status(500).json({ error: 'Sipariş hatası' }); }
+});
+
 
 // --- 🔥 KORUMALI (AUTH GEREKTİREN) API ROTLARI ---
-// AuthMiddleware'ı buradaki rotalara uyguluyoruz!
-app.use('/api', authMiddleware);
+// authMiddleware ile admin rotalarını koruma altına alıyoruz!
+app.use('/api', authMiddleware); // <--- Hata çözüldü: authMiddleware artık fonksiyon olarak geliyor
 
-// Admin İşlemleri (Sipariş Güncelleme)
-app.put('/api/siparisler/:id', async (req, res) => {
-    // BURADA EK BİR ADMIN ROLÜ KONTROLÜ YAPILABİLİR (req.user.rol === 'admin' gibi)
+// Admin Kontrolü için yardımcı Middleware
+const adminCheck = (req, res, next) => {
+    if (req.user.rol !== 'admin') {
+         return res.status(403).json({ error: 'Yetkiniz yok. Sadece admin erişebilir.' });
+    }
+    next();
+};
+
+// Admin İşlemleri
+app.put('/api/siparisler/:id', adminCheck, async (req, res) => {
     try {
         await Siparis.findByIdAndUpdate(req.params.id, { durum: req.body.durum });
         res.json({message: 'Durum güncellendi'});
     } catch(e) { res.status(404).json({error: 'Sipariş bulunamadı'}); }
 });
 
-// Admin İşlemleri (Dashboard, SADECE admin rolü görmeli)
-app.get('/api/dashboard', async (req, res) => {
-    if (req.user.rol !== 'admin') {
-         return res.status(403).json({ error: 'Yetkiniz yok.' });
-    }
+app.get('/api/dashboard', adminCheck, async (req, res) => {
     try {
         const urunler = await Urun.find({});
         const siparisler = await Siparis.find({});
@@ -221,11 +231,8 @@ app.get('/api/dashboard', async (req, res) => {
     } catch(e) { res.status(500).json({toplamCiro: 0, toplamSiparis: 0, toplamUrun: 0, okunmamisMesaj: 0, kritikStok: 0}); }
 });
 
-// Admin İşlemleri (Ürün Ekleme/Silme/Mesaj Listesi/Kupon Ekleme/Ayarlar)
-app.post('/api/urunler', async (req, res) => {
-    if (req.user.rol !== 'admin') {
-         return res.status(403).json({ error: 'Yetkiniz yok.' });
-    }
+// ... Diğer tüm admin rotaları (ürün, kupon, mesaj, ayar yönetimi)
+app.post('/api/urunler', adminCheck, async (req, res) => {
     try {
         const yeniUrun = new Urun(req.body);
         const kaydedilen = await yeniUrun.save();
@@ -233,65 +240,44 @@ app.post('/api/urunler', async (req, res) => {
     } catch(e) { res.status(500).json({ error: 'Kaydetme hatası' }); }
 });
 
-app.delete('/api/urunler/:id', async (req, res) => {
-    if (req.user.rol !== 'admin') {
-         return res.status(403).json({ error: 'Yetkiniz yok.' });
-    }
+app.delete('/api/urunler/:id', adminCheck, async (req, res) => {
     try {
         await Urun.findByIdAndDelete(req.params.id);
         res.json({ message: 'Silindi' });
     } catch(e) { res.status(500).json({ error: 'Silme hatası' }); }
 });
 
-app.get('/api/siparisler', async (req, res) => {
-    if (req.user.rol !== 'admin') {
-         return res.status(403).json({ error: 'Yetkiniz yok.' });
-    }
+app.get('/api/siparisler', adminCheck, async (req, res) => {
     try {
         const siparisler = await Siparis.find({}).sort({ tarih: -1 });
         res.json(siparisler);
     } catch(e) { res.status(500).json([]); }
 });
 
-app.get('/api/mesajlar', async (req, res) => { 
-    if (req.user.rol !== 'admin') {
-         return res.status(403).json({ error: 'Yetkiniz yok.' });
-    }
+app.get('/api/mesajlar', adminCheck, async (req, res) => { 
     try { res.json(await Mesaj.find({})); } catch(e) { res.status(500).json([]); } 
 });
 
-app.post('/api/kuponlar', async (req, res) => { 
-    if (req.user.rol !== 'admin') {
-         return res.status(403).json({ error: 'Yetkiniz yok.' });
-    }
+app.post('/api/kuponlar', adminCheck, async (req, res) => { 
     try { await new Kupon(req.body).save(); res.json({message:'OK'}); } catch(e) { res.status(500).json({ error: 'Hata' }); } 
 });
-app.delete('/api/kuponlar/:id', async (req, res) => { 
-    if (req.user.rol !== 'admin') {
-         return res.status(403).json({ error: 'Yetkiniz yok.' });
-    }
+app.delete('/api/kuponlar/:id', adminCheck, async (req, res) => { 
     try { await Kupon.findByIdAndDelete(req.params.id); res.json({message:'Silindi'}); } catch(e) { res.status(500).json({ error: 'Hata' }); } 
 });
 
-app.get('/api/ayarlar', async (req, res) => { 
-    if (req.user.rol !== 'admin') {
-         return res.status(403).json({ error: 'Yetkiniz yok.' });
-    }
+app.get('/api/ayarlar', adminCheck, async (req, res) => { 
     try { const ayar = await Ayar.findOne({}); res.json(ayar || {}); } catch(e) { res.status(500).json({}); }
 });
 
-app.post('/api/ayarlar', async (req, res) => { 
-    if (req.user.rol !== 'admin') {
-         return res.status(403).json({ error: 'Yetkiniz yok.' });
-    }
+app.post('/api/ayarlar', adminCheck, async (req, res) => { 
     try { await Ayar.findOneAndUpdate({}, req.body, { upsert: true, new: true }); res.json({message:'OK'}); } catch(e) { res.status(500).json({ error: 'Hata' }); } 
 });
 
 
 // KULLANICI İŞLEMİ (Token ile siparişleri güvenli çekme)
 app.get('/api/siparislerim', async (req, res) => {
-    // Query'den email çekmek yerine, Token'dan gelen kullanıcı bilgisini kullanıyoruz!
-    // Bu, sadece oturum açmış kullanıcının kendi verisini çekebilmesini sağlar.
+    // Önce Token kontrolü yapılır (app.use('/api', authMiddleware) sayesinde),
+    // sonra Token'dan gelen e-posta ile filtreleme yapılır.
     const email = req.user.email; 
     
     try {
