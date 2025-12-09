@@ -221,7 +221,7 @@
             
             const res = await fetch(url, { ...options, headers });
 
-            // 401 Unauthorized Hatası (Yetkisiz/Oturum Bitti)
+            // 401 Unauthorized veya 403 Forbidden Hatası (Yetkisiz/Oturum Bitti)
             if (res.status === 401 || res.status === 403) {
                 alert("Oturumunuz sona ermiş veya yetkiniz yok. Lütfen tekrar giriş yapın.");
                 sessionStorage.clear();
@@ -262,6 +262,7 @@
                     body: JSON.stringify({ email: emailInput.value, sifre: passInput.value }) 
                 });
 
+                // Token kontrolünden sonra, kullanıcının rolünü de kontrol etmeliyiz
                 if (data && data.token && data.user.rol === 'admin') {
                     sessionStorage.setItem('authToken', data.token);
                     
@@ -272,7 +273,7 @@
                         switchTab('dashboard', document.querySelector('.menu-item.active'));
                     }, 500);
                 } else {
-                    throw new Error("Giriş Başarısız.");
+                    throw new Error("Giriş Başarısız veya yetki yok.");
                 }
 
             } catch (error) {
@@ -294,9 +295,12 @@
         // Sayfa yüklendiğinde Token var mı bak
         window.onload = function() {
             if (sessionStorage.getItem('authToken')) {
-                document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('app-container').style.display = 'block';
-                switchTab('dashboard', document.querySelector('.menu-item.active'));
+                document.getElementById('login-overlay').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('app-container').style.display = 'block';
+                    switchTab('dashboard', document.querySelector('.menu-item.active'));
+                }, 10); // Çok kısa bir süre sonra göster
             }
         };
 
@@ -319,12 +323,15 @@
         async function loadDashboard() {
             try {
                 const data = await fetchAPI('/api/dashboard');
-                document.getElementById('d-ciro').innerText = (data.toplamCiro || 0).toLocaleString('tr-TR') + ' TL';
+                document.getElementById('d-ciro').innerText = (data.toplamCiro || 0).toLocaleString('tr-TR', { minimumFractionDigits: 0 }) + ' TL';
                 document.getElementById('d-siparis').innerText = data.toplamSiparis || 0;
                 document.getElementById('d-urun').innerText = data.toplamUrun || 0;
                 document.getElementById('d-mesaj').innerText = data.okunmamisMesaj || 0;
-                if (data.kritikStok > 0) document.getElementById('stok-uyari').classList.remove('hidden');
-            } catch (e) { console.error(e); }
+                if (data.kritikStok > 0) document.getElementById('stok-uyari').classList.remove('hidden'); else document.getElementById('stok-uyari').classList.add('hidden');
+            } catch (e) { 
+                console.error("Dashboard yüklenemedi:", e); 
+                alert("Dashboard verileri yüklenemedi. Yetki veya sunucu hatası.");
+            }
         }
 
         // --- ÜRÜNLER ---
@@ -408,7 +415,7 @@
                                 <p class="text-xs text-gray-400"><i class="far fa-clock"></i> ${o.tarih}</p>
                             </div>
                             <div class="text-right">
-                                <div class="font-bold text-xl text-green-600 mb-2">${(o.toplamTutar||0).toLocaleString('tr-TR')} TL</div>
+                                <div class="font-bold text-xl text-green-600 mb-2">${(o.toplamTutar||0).toLocaleString('tr-TR', { minimumFractionDigits: 0 })} TL</div>
                                 <span class="px-3 py-1 rounded-full text-xs font-bold ${statusColor}">${o.durum || 'Yeni Sipariş'}</span>
                             </div>
                         </div>
