@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken'); 
 require('dotenv').config(); 
 
-const authMiddleware = require('./auth'); // auth.js artık kök dizinden yükleniyor
+const authMiddleware = require('./auth'); // auth.js kök dizinden yükleniyor
 
 const app = express();
 
@@ -32,7 +32,7 @@ const KullaniciSchema = new mongoose.Schema({
     kayitTarihi: { type: String, default: () => new Date().toLocaleString('tr-TR') }
 });
 
-// 🔥 DÜZELTME: next() çağrıları kaldırıldı (Asenkron hook'lar için doğru kullanım)
+// HATA DÜZELTMESİ: next() çağrıları kaldırıldı (asenkron hook)
 KullaniciSchema.pre('save', async function() { 
     if (!this.isModified('sifre')) {
         return; 
@@ -80,7 +80,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '.')));
 
-const DOMAIN = 'https://pomelita.com'; 
+const DOMAIN = 'https://pomelita.onrender.com'; // Render URL'si
 
 // --- SAYFALAR ---
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
@@ -121,7 +121,6 @@ app.post('/api/kayit', async (req, res) => {
         const yeniUye = new Kullanici({ ad, soyad, email, sifre, rol: 'kullanici' });
         await yeniUye.save();
         
-        // Kayıttan hemen sonra Token oluşturup gönderelim
         const token = jwt.sign(
             { id: yeniUye._id, email: yeniUye.email, rol: yeniUye.rol }, 
             process.env.JWT_SECRET, 
@@ -134,7 +133,7 @@ app.post('/api/kayit', async (req, res) => {
     } catch(e) { res.status(400).json({ error: e.code === 11000 ? 'Bu e-posta zaten kayıtlı.' : 'Kayıt Hatası.' }); }
 });
 
-// GİRİŞ ROTASI (Şifre kontrolü HASH ile yapılıyor ve Token döndürülüyor)
+// GİRİŞ ROTASI
 app.post('/api/giris', async (req, res) => {
     const { email, sifre } = req.body;
     try {
@@ -206,7 +205,7 @@ const adminCheck = (req, res, next) => {
     next();
 };
 
-// Admin İşlemleri (Sipariş Güncelleme)
+// Admin İşlemleri
 app.put('/api/siparisler/:id', adminCheck, async (req, res) => {
     try {
         await Siparis.findByIdAndUpdate(req.params.id, { durum: req.body.durum });
@@ -214,11 +213,23 @@ app.put('/api/siparisler/:id', adminCheck, async (req, res) => {
     } catch(e) { res.status(404).json({error: 'Sipariş bulunamadı'}); }
 });
 
+// Dashboard rotası (HATA DÜZELTMESİ YAPILDI)
 app.get('/api/dashboard', adminCheck, async (req, res) => {
     try {
         const urunler = await Urun.find({});
         const siparisler = await Siparis.find({});
-        const ciro = siparisler.reduce((a,b) => a + (parseFloat(b.toplamTutar)||0), 0);
+        
+        // 🔥 HATA DÜZELTMESİ: Ciro hesaplaması daha dayanıklı hale getirildi
+        const ciro = siparisler.reduce((a, b) => {
+            let amount = 0;
+            if (b.toplamTutar) {
+                // Hatalı/String fiyatları sayıya dönüştürürken güvenliği sağlar
+                const priceString = String(b.toplamTutar).replace(',', '.');
+                amount = parseFloat(priceString);
+            }
+            return a + (amount || 0); // NaN ise 0 kullan
+        }, 0);
+        
         res.json({
             toplamCiro: ciro,
             toplamSiparis: siparisler.length,
@@ -226,10 +237,15 @@ app.get('/api/dashboard', adminCheck, async (req, res) => {
             okunmamisMesaj: (await Mesaj.countDocuments({})), 
             kritikStok: urunler.filter(x=> x.stok && x.stok < 5).length
         });
-    } catch(e) { res.status(500).json({toplamCiro: 0, toplamSiparis: 0, toplamUrun: 0, okunmamisMesaj: 0, kritikStok: 0}); }
+    } catch(e) { 
+        console.error("Dashboard API hatası:", e);
+        // Hata durumunda boş ve güvenli değerler döndürülür
+        res.status(500).json({toplamCiro: 0, toplamSiparis: 0, toplamUrun: 0, okunmamisMesaj: 0, kritikStok: 0}); 
+    }
 });
 
-// ... Diğer tüm admin rotaları (ürün, kupon, mesaj, ayar yönetimi)
+
+// ... Diğer tüm admin rotaları
 app.post('/api/urunler', adminCheck, async (req, res) => {
     try {
         const yeniUrun = new Urun(req.body);
