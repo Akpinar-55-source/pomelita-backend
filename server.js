@@ -38,6 +38,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '.')));
 
+// --- SAYFA ROTALARI (Cannot GET /admin hatasını çözen kısım) ---
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+
 // --- GİRİŞ ROTASI ---
 app.post('/api/giris', async (req, res) => {
     const { email, sifre } = req.body;
