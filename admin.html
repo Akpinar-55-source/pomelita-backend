@@ -8,9 +8,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sacramento&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* 🎨 TÜM GÖRSEL TASARIM VE DETAYLI CSS */
         body { background-color: #F3F4F6; font-family: 'Quicksand', sans-serif; color: #374151; }
-        
-        /* ✨ LOGO STİLİ */
         .main-logo {
             font-family: 'Sacramento', cursive;
             font-size: 5rem;
@@ -24,27 +23,29 @@
         }
         .main-logo:hover { transform: scale(1.05) rotate(-1deg); }
 
-        /* GİRİŞ EKRANI */
-        #login-overlay { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; }
-        .login-box { animation: dropIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        #login-overlay { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        .login-box { animation: dropIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: white; padding: 40px; border-radius: 2rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); width: 24rem; text-align: center; }
+        
         @keyframes dropIn { 0% { transform: scale(0.5) translateY(-50px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
-        .shake { animation: shake 0.3s ease-in-out; border-color: #ef4444 !important; }
 
-        /* ANA TASARIM */
         .sidebar { width: 280px; background: white; height: 100vh; position: fixed; padding: 30px; box-shadow: 4px 0 25px rgba(0,0,0,0.03); overflow-y: auto; z-index: 40; }
         .main-content { margin-left: 280px; padding: 40px; transition: 0.3s; min-height: 100vh; }
+        
         .menu-item { display: flex; align-items: center; padding: 14px 18px; margin-bottom: 8px; border-radius: 12px; font-weight: 700; color: #64748b; transition: 0.3s; cursor: pointer; }
         .menu-item:hover { background-color: #f8fafc; color: #9F8CC2; transform: translateX(5px); }
         .menu-item.active { background: linear-gradient(to right, #F4F0FF, #ffffff); color: #9F8CC2; border-right: 4px solid #9F8CC2; }
+        
         .section { display: none; }
         .section.active { display: block; animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(15px); } to { opacity:1; transform:translateY(0); } }
 
-        /* FORM VE KARTLAR */
-        .form-input { width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 15px; outline: none; transition: 0.3s; background: #fdfdfd; }
+        .form-input { width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 15px; outline: none; transition: 0.3s; background: #fdfdfd; font-weight: 500; }
         .form-input:focus { border-color: #9F8CC2; box-shadow: 0 0 0 4px rgba(159, 140, 194, 0.1); background: white; }
-        .btn-save { background: linear-gradient(135deg, #98DDCA 0%, #76c7b1 100%); color: white; padding: 14px; border-radius: 10px; font-weight: 700; width: 100%; transition: 0.3s; cursor: pointer; border: none; box-shadow: 0 4px 12px rgba(152, 221, 202, 0.3); }
-        .stat-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #f1f5f9; transition: 0.3s; }
+        
+        .btn-save { background: linear-gradient(135deg, #98DDCA 0%, #76c7b1 100%); color: white; padding: 14px; border-radius: 10px; font-weight: 700; width: 100%; transition: 0.3s; cursor: pointer; border: none; box-shadow: 0 4px 12px rgba(152, 221, 202, 0.3); text-transform: uppercase; letter-spacing: 1px; }
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(152, 221, 202, 0.4); opacity: 0.95; }
+        
+        .stat-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid #f1f5f9; transition: 0.3s; display: flex; align-items: center; justify-content: space-between; }
         .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
 
         @media (max-width: 1024px) {
@@ -59,18 +60,18 @@
 <body>
 
     <div id="login-overlay">
-        <div class="login-box bg-white p-10 rounded-3xl shadow-2xl w-96 text-center relative overflow-hidden">
+        <div class="login-box">
             <h1 class="main-logo text-7xl mb-2">Pomelita</h1>
             <p class="text-gray-400 text-xs tracking-[0.3em] font-bold mb-8 uppercase">Yönetici Girişi</p>
-            <div class="mb-4 relative text-left">
+            <div class="mb-4 relative">
                 <i class="fas fa-envelope absolute left-4 top-4 text-gray-300"></i>
-                <input type="email" id="adminEmail" placeholder="E-posta" class="form-input pl-12">
+                <input type="email" id="adminEmail" placeholder="pomelita-shop@hotmail.com" class="form-input pl-12 pr-4 py-3 border border-gray-200 rounded-xl">
             </div>
-            <div class="mb-6 relative text-left">
+            <div class="mb-6 relative">
                 <i class="fas fa-lock absolute left-4 top-4 text-gray-300"></i>
-                <input type="password" id="adminPass" placeholder="Şifreniz" class="form-input pl-12 tracking-widest" onkeypress="if(event.key === 'Enter') checkLogin()">
+                <input type="password" id="adminPass" placeholder="Şifreniz" class="form-input pl-12 pr-4 py-3 border border-gray-200 rounded-xl tracking-widest">
             </div>
-            <button id="loginBtn" onclick="checkLogin()" class="w-full bg-gradient-to-r from-[#9F8CC2] to-[#B39CD0] text-white font-bold py-3 rounded-xl shadow-lg transition active:scale-95">GİRİŞ YAP</button>
+            <button onclick="checkLogin()" class="w-full bg-gradient-to-r from-[#9F8CC2] to-[#B39CD0] text-white font-bold py-3 rounded-xl shadow-lg transform transition active:scale-95">GİRİŞ YAP</button>
             <p id="errorMsg" class="text-red-500 text-xs font-bold mt-4 opacity-0 transition">Hatalı giriş bilgileri!</p>
         </div>
     </div>
@@ -79,7 +80,7 @@
         <div class="sidebar">
             <div class="text-center mb-12">
                 <a href="/" class="main-logo text-5xl">Pomelita</a>
-                <p class="text-xs text-gray-400 tracking-widest mt-2">YÖNETİM V2.1</p>
+                <p class="text-xs text-gray-400 tracking-widest mt-2 font-bold uppercase">Yönetim V2.1</p>
             </div>
             <nav>
                 <div class="menu-item active" onclick="switchTab('dashboard', this)"><i class="fas fa-chart-pie mr-3 w-5"></i> Özet (Dashboard)</div>
@@ -88,164 +89,341 @@
                 <div class="menu-item" onclick="switchTab('kuponlar', this)"><i class="fas fa-ticket-alt mr-3 w-5"></i> İndirim Kuponları</div>
                 <div class="menu-item" onclick="switchTab('mesajlar', this)"><i class="fas fa-envelope mr-3 w-5"></i> Gelen Mesajlar</div>
                 <div class="menu-item" onclick="switchTab('ayarlar', this)"><i class="fas fa-cog mr-3 w-5"></i> Site Ayarları</div>
-                <div class="border-t my-4"></div>
-                <a href="javascript:void(0)" onclick="logout()" class="menu-item text-red-500 hover:text-red-600"><i class="fas fa-sign-out-alt mr-3 w-5"></i> Çıkış Yap</a>
+                <div class="border-t my-6"></div>
+                <a href="javascript:void(0)" onclick="logout()" class="menu-item text-red-500 hover:text-red-600"><i class="fas fa-sign-out-alt mr-3 w-5"></i> Güvenli Çıkış</a>
             </nav>
         </div>
 
         <div class="main-content">
+            
             <div id="tab-dashboard" class="section active">
                 <h2 class="text-3xl font-bold text-gray-800 mb-8">Hoş Geldiniz, Patron! 👋</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div class="stat-card flex items-center justify-between"><div class="bg-green-100 text-green-600 p-3 rounded-xl text-2xl"><i class="fas fa-lira-sign"></i></div><div><p class="text-gray-400 text-xs font-bold uppercase">Toplam Ciro (Net)</p><h3 id="d-ciro" class="text-2xl font-bold">0 TL</h3></div></div>
-                    <div class="stat-card flex items-center justify-between"><div class="bg-blue-100 text-blue-600 p-3 rounded-xl text-2xl"><i class="fas fa-shopping-bag"></i></div><div><p class="text-gray-400 text-xs font-bold uppercase">Aktif Sipariş</p><h3 id="d-siparis" class="text-2xl font-bold">0</h3></div></div>
-                    <div class="stat-card flex items-center justify-between"><div class="bg-purple-100 text-purple-600 p-3 rounded-xl text-2xl"><i class="fas fa-gem"></i></div><div><p class="text-gray-400 text-xs font-bold uppercase">Toplam Ürün</p><h3 id="d-urun" class="text-2xl font-bold">0</h3></div></div>
-                    <div class="stat-card flex items-center justify-between"><div class="bg-red-100 text-red-600 p-3 rounded-xl text-2xl"><i class="fas fa-envelope"></i></div><div><p class="text-gray-400 text-xs font-bold uppercase">Yeni Mesajlar</p><h3 id="d-mesaj" class="text-2xl font-bold">0</h3></div></div>
+                    <div class="stat-card">
+                        <div><p class="text-gray-400 text-xs font-bold uppercase">Toplam Ciro (Net)</p><h3 id="d-ciro" class="text-2xl font-bold text-green-600">0 TL</h3></div>
+                        <div class="bg-green-100 text-green-600 p-3 rounded-xl text-xl"><i class="fas fa-lira-sign"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div><p class="text-gray-400 text-xs font-bold uppercase">Aktif Sipariş</p><h3 id="d-siparis" class="text-2xl font-bold text-blue-600">0</h3></div>
+                        <div class="bg-blue-100 text-blue-600 p-3 rounded-xl text-xl"><i class="fas fa-shopping-bag"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div><p class="text-gray-400 text-xs font-bold uppercase">Toplam Ürün</p><h3 id="d-urun" class="text-2xl font-bold text-purple-600">0</h3></div>
+                        <div class="bg-purple-100 text-purple-600 p-3 rounded-xl text-xl"><i class="fas fa-gem"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div><p class="text-gray-400 text-xs font-bold uppercase">Yeni Mesajlar</p><h3 id="d-mesaj" class="text-2xl font-bold text-red-600">0</h3></div>
+                        <div class="bg-red-100 text-red-600 p-3 rounded-xl text-xl"><i class="fas fa-envelope"></i></div>
+                    </div>
                 </div>
-                <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-xl text-yellow-700 hidden" id="stok-uyari">⚠️ Dikkat: Bazı ürünlerin stoğu 5'in altına düştü!</div>
+                <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-xl text-yellow-700 hidden" id="stok-uyari">
+                    <i class="fas fa-exclamation-triangle mr-2"></i> <b>Dikkat:</b> Bazı ürünlerin stoğu kritik seviyeye (5'in altına) düştü!
+                </div>
             </div>
 
             <div id="tab-siparisler" class="section">
-                <h2 class="text-3xl font-bold text-gray-800 mb-8">Siparişler <span id="order-badge" class="bg-red-500 text-white text-sm px-2 py-1 rounded-full">0</span></h2>
-                <div id="orderList" class="space-y-4"></div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-8">Sipariş Yönetimi <span id="order-badge" class="bg-red-500 text-white text-sm px-3 py-1 rounded-full ml-2">0</span></h2>
+                <div id="orderList" class="space-y-6"></div>
             </div>
 
             <div id="tab-urunler" class="section">
                 <div class="grid lg:grid-cols-3 gap-8">
-                    <div class="lg:col-span-1 stat-card">
-                        <h3 class="text-lg font-bold mb-4 text-[#9F8CC2]">Ürün Ekle</h3>
+                    <div class="lg:col-span-1 stat-card block h-fit">
+                        <h3 class="text-lg font-bold mb-6 text-[#9F8CC2] border-b pb-2"><i class="fas fa-plus-circle mr-2"></i>Yeni Ürün Ekle</h3>
                         <form id="addForm">
-                            <label class="text-xs font-bold text-gray-400 uppercase">Ürün Adı</label><input type="text" id="pName" class="form-input" required>
-                            <div class="grid grid-cols-2 gap-2">
+                            <label class="text-xs font-bold text-gray-400 uppercase">Ürün İsmi</label>
+                            <input type="text" id="pName" class="form-input" placeholder="Örn: Gümüş Küpe" required>
+                            
+                            <div class="grid grid-cols-2 gap-4">
                                 <div><label class="text-xs font-bold text-gray-400 uppercase">Fiyat</label><input type="text" id="pPrice" class="form-input" placeholder="599 TL" required></div>
-                                <div><label class="text-xs font-bold text-gray-400 uppercase">Stok</label><input type="number" id="pStock" class="form-input" required></div>
+                                <div><label class="text-xs font-bold text-gray-400 uppercase">Stok Adedi</label><input type="number" id="pStock" class="form-input" placeholder="10" required></div>
                             </div>
-                            <label class="text-xs font-bold text-gray-400 uppercase">Görsel Yolu</label><input type="text" id="pImg" class="form-input" placeholder="/img/urun.jpg" required>
-                            <button type="submit" class="btn-save">KAYDET</button>
+                            
+                            <label class="text-xs font-bold text-gray-400 uppercase">Kategori</label>
+                            <select id="pCat" class="form-input">
+                                <option value="takilar">Takılar</option>
+                                <option value="kisisel">✨ Kişiselleştirilmiş</option>
+                                <option value="vazolar">Vazolar</option>
+                                <option value="atolye">Atölye</option>
+                            </select>
+
+                            <label class="text-xs font-bold text-gray-400 uppercase">Görsel Yolu (Klasör/Link)</label>
+                            <input type="text" id="pImg" class="form-input" placeholder="/img/kupe.jpg" required>
+                            
+                            <label class="text-xs font-bold text-gray-400 uppercase">Açıklama / SEO</label>
+                            <textarea id="pDesc" class="form-input h-24 resize-none" placeholder="Ürün özelliklerini buraya yazın..."></textarea>
+                            
+                            <button type="submit" class="btn-save mt-4">SİSTEME KAYDET</button>
                         </form>
                     </div>
-                    <div class="lg:col-span-2 stat-card overflow-x-auto"><table class="w-full text-left"><thead><tr class="text-purple-400 border-b"><th class="pb-2">Ürün</th><th class="pb-2">Stok</th><th class="pb-2">Sil</th></tr></thead><tbody id="productList"></tbody></table></div>
+
+                    <div class="lg:col-span-2 stat-card block overflow-x-auto">
+                        <h3 class="text-lg font-bold mb-6 text-gray-700 border-b pb-2">Stoktaki Ürünler</h3>
+                        <table class="w-full text-left">
+                            <thead><tr class="text-purple-400 border-b uppercase text-xs font-bold"><th class="pb-3">Görsel & İsim</th><th class="pb-3 text-center">Fiyat / Stok</th><th class="pb-3 text-right">Sil</th></tr></thead>
+                            <tbody id="productList" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <div id="tab-kuponlar" class="section">
-                <h2 class="text-3xl font-bold text-gray-800 mb-8">Kuponlar</h2>
+                <h2 class="text-3xl font-bold text-gray-800 mb-8">İndirim Kuponları</h2>
                 <div class="grid lg:grid-cols-3 gap-8">
-                    <div class="lg:col-span-1 stat-card">
+                    <div class="lg:col-span-1 stat-card block">
+                        <h3 class="text-lg font-bold mb-6 text-purple-500 border-b pb-2">Yeni Kupon Tanımla</h3>
                         <form id="couponForm">
-                            <label class="text-xs font-bold text-gray-400 uppercase">Kod</label><input type="text" id="cCode" class="form-input uppercase" required>
-                            <label class="text-xs font-bold text-gray-400 uppercase">Oran (%)</label><input type="number" id="cRate" class="form-input" required>
-                            <button type="submit" class="btn-save bg-purple-400">EKLE</button>
+                            <label class="text-xs font-bold text-gray-400 uppercase">Kupon Kodu</label>
+                            <input type="text" id="cCode" class="form-input uppercase font-mono" placeholder="POMELITA20" required>
+                            <label class="text-xs font-bold text-gray-400 uppercase">İndirim Oranı (%)</label>
+                            <input type="number" id="cRate" class="form-input" placeholder="20" required>
+                            <button type="submit" class="btn-save bg-purple-500">KUPONU OLUŞTUR</button>
                         </form>
                     </div>
-                    <div class="lg:col-span-2 stat-card"><table class="w-full text-left"><thead><tr class="text-purple-400 border-b"><th>Kod</th><th>Oran</th><th>Sil</th></tr></thead><tbody id="couponList"></tbody></table></div>
+                    <div class="lg:col-span-2 stat-card block">
+                        <table class="w-full text-left">
+                            <thead><tr class="text-purple-400 border-b uppercase text-xs"><th>Kod</th><th>Oran</th><th class="text-right">İşlem</th></tr></thead>
+                            <tbody id="couponList"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <div id="tab-mesajlar" class="section"><h2 class="text-3xl font-bold text-gray-800 mb-8">Mesajlar</h2><div id="messageList" class="space-y-4"></div></div>
+            <div id="tab-mesajlar" class="section">
+                <h2 class="text-3xl font-bold text-gray-800 mb-8">Müşteri Mesajları</h2>
+                <div id="messageList" class="grid md:grid-cols-2 gap-6"></div>
+            </div>
 
             <div id="tab-ayarlar" class="section">
-                <h2 class="text-3xl font-bold text-gray-800 mb-8">Ayarlar</h2>
+                <h2 class="text-3xl font-bold text-gray-800 mb-8">Genel Site Ayarları</h2>
                 <form id="settingsForm">
                     <div class="grid lg:grid-cols-2 gap-8">
-                        <div class="stat-card space-y-4">
-                            <h3 class="font-bold text-purple-600 border-b pb-2">İletişim</h3>
-                            <input type="text" id="setTel" class="form-input" placeholder="Telefon">
-                            <input type="email" id="setEmail" class="form-input" placeholder="E-posta">
+                        <div class="stat-card block space-y-6">
+                            <h3 class="font-bold text-purple-600 border-b pb-2 mb-4"><i class="fas fa-id-card mr-2"></i> İletişim Bilgileri</h3>
+                            <div><label class="text-xs font-bold text-gray-400 uppercase">Mağaza Telefonu</label><input type="text" id="setTel" class="form-input"></div>
+                            <div><label class="text-xs font-bold text-gray-400 uppercase">Destek E-Postası</label><input type="email" id="setEmail" class="form-input"></div>
+                            <div><label class="text-xs font-bold text-gray-400 uppercase">Mağaza Adresi</label><textarea id="setAddress" class="form-input h-20 resize-none"></textarea></div>
                         </div>
-                        <div class="stat-card space-y-4">
-                            <h3 class="font-bold text-purple-600 border-b">Sosyal Medya</h3>
-                            <input type="text" id="setInsta" class="form-input" placeholder="Instagram">
+                        <div class="stat-card block space-y-6">
+                            <h3 class="font-bold text-purple-600 border-b pb-2 mb-4"><i class="fab fa-instagram mr-2"></i> Sosyal Medya & Analiz</h3>
+                            <div><label class="text-xs font-bold text-gray-400 uppercase">Instagram Linki</label><input type="text" id="setInsta" class="form-input" placeholder="https://instagram.com/..."></div>
+                            <div><label class="text-xs font-bold text-gray-400 uppercase">Google Analytics Kimliği</label><input type="text" id="setAnalytics" class="form-input" placeholder="UA-XXXXXXXXX-X"></div>
                         </div>
                     </div>
-                    <button type="submit" class="btn-save mt-8">KAYDET</button>
+                    <div class="mt-10 text-center">
+                        <button type="submit" class="btn-save w-auto px-20 py-4 text-lg shadow-xl"><i class="fas fa-save mr-2"></i> TÜM AYARLARI GÜNCELLE</button>
+                    </div>
                 </form>
             </div>
+
         </div>
     </div>
 
     <script>
+        // --- ⚙️ API YARDIMCISI ---
         async function fetchAPI(url, options = {}) {
             const token = sessionStorage.getItem('authToken');
             const headers = { 'Content-Type': 'application/json', ...options.headers };
             if (token) headers['Authorization'] = `Bearer ${token}`;
+            
             const res = await fetch(url, { ...options, headers });
-            if (res.status === 401 || res.status === 403) { sessionStorage.clear(); window.location.reload(); return; }
+            if (res.status === 401 || res.status === 403) {
+                sessionStorage.clear();
+                window.location.reload(); 
+                return; 
+            }
+            if (res.status === 204 || res.headers.get('content-length') === '0') return {};
             return res.json();
         }
 
+        // --- 🔐 GİRİŞ KONTROLÜ ---
         async function checkLogin() {
             const email = document.getElementById('adminEmail').value;
             const sifre = document.getElementById('adminPass').value;
+            const btn = document.querySelector('.login-box button');
+            const errorMsg = document.getElementById('errorMsg');
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> KONTROL EDİLİYOR...';
+            btn.disabled = true;
+
             try {
-                const data = await fetchAPI('/api/giris', { method: 'POST', body: JSON.stringify({ email, sifre }) });
-                if (data && data.token) { sessionStorage.setItem('authToken', data.token); showApp(); }
-                else { throw new Error(); }
-            } catch (e) { document.getElementById('errorMsg').style.opacity = '1'; }
+                const response = await fetch('/api/giris', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, sifre })
+                });
+                const data = await response.json();
+
+                if (data && data.token) {
+                    sessionStorage.setItem('authToken', data.token);
+                    window.location.reload();
+                } else { throw new Error(); }
+            } catch (error) {
+                document.querySelector('.login-box').classList.add('shake');
+                errorMsg.style.opacity = '1';
+                setTimeout(() => {
+                    document.querySelector('.login-box').classList.remove('shake');
+                    btn.innerHTML = 'GİRİŞ YAP';
+                    btn.disabled = false;
+                }, 500);
+            }
         }
 
-        function showApp() { document.getElementById('login-overlay').style.display = 'none'; document.getElementById('app-container').style.display = 'block'; switchTab('dashboard', document.querySelector('.menu-item.active')); }
         function logout() { sessionStorage.clear(); window.location.reload(); }
-        window.onload = () => { if (sessionStorage.getItem('authToken')) showApp(); };
+        window.onload = () => { if (sessionStorage.getItem('authToken')) { document.getElementById('login-overlay').style.display='none'; document.getElementById('app-container').style.display='block'; loadDashboard(); } };
 
+        // --- 🔄 SEKME YÖNETİMİ ---
         function switchTab(tab, el) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
             document.getElementById('tab-' + tab).classList.add('active');
             if(el) el.classList.add('active');
-            if(tab === 'dashboard') loadDashboard();
-            if(tab === 'siparisler') loadOrders();
-            if(tab === 'urunler') loadProducts();
-            if(tab === 'kuponlar') loadCoupons();
-            if(tab === 'mesajlar') loadMessages();
-            if(tab === 'ayarlar') loadSettings();
+            
+            if (tab === 'dashboard') loadDashboard();
+            if (tab === 'siparisler') loadOrders();
+            if (tab === 'urunler') loadProducts();
+            if (tab === 'kuponlar') loadCoupons();
+            if (tab === 'mesajlar') loadMessages();
+            if (tab === 'ayarlar') loadSettings();
         }
 
+        // --- 📊 DASHBOARD YÜKLE ---
         async function loadDashboard() {
-            const data = await fetchAPI('/api/dashboard');
-            document.getElementById('d-ciro').innerText = (data.toplamCiro || 0).toLocaleString('tr-TR') + ' TL';
-            document.getElementById('d-siparis').innerText = data.toplamSiparis || 0;
-            document.getElementById('d-urun').innerText = data.toplamUrun || 0;
-            document.getElementById('d-mesaj').innerText = data.okunmamisMesaj || 0;
+            try {
+                const data = await fetchAPI('/api/dashboard');
+                document.getElementById('d-ciro').innerText = (data.toplamCiro || 0).toLocaleString('tr-TR') + ' TL';
+                document.getElementById('d-siparis').innerText = data.toplamSiparis || 0;
+                document.getElementById('d-urun').innerText = data.toplamUrun || 0;
+                document.getElementById('d-mesaj').innerText = data.okunmamisMesaj || 0;
+                if (data.kritikStok > 0) document.getElementById('stok-uyari').classList.remove('hidden');
+            } catch (e) { console.error(e); }
         }
 
+        // --- 📦 SİPARİŞLERİ YÜKLE ---
         async function loadOrders() {
             const data = await fetchAPI('/api/siparisler');
-            document.getElementById('orderList').innerHTML = data.map(o => `
-                <div class="stat-card mb-4 flex justify-between">
-                    <div><h4 class="font-bold text-purple-600">${o.musteri?.ad} ${o.musteri?.soyad}</h4><p class="text-xs">${o.tarih}</p></div>
-                    <div class="text-right"><div class="font-bold">${o.toplamTutar} TL</div><span class="text-xs bg-gray-100 p-1 rounded">${o.durum}</span></div>
+            const container = document.getElementById('orderList');
+            document.getElementById('order-badge').innerText = data.length || 0;
+            container.innerHTML = data.length ? data.map(o => `
+                <div class="stat-card border-l-8 border-purple-400">
+                    <div class="flex-1">
+                        <h4 class="font-bold text-lg text-gray-800">${o.musteri?.ad} ${o.musteri?.soyad}</h4>
+                        <p class="text-xs text-gray-400 font-bold mb-2 uppercase tracking-tighter">${o.tarih}</p>
+                        <div class="flex gap-2 text-xs font-bold text-purple-600 bg-purple-50 p-2 rounded-lg">
+                            ${o.sepet?.map(i => `${i.adet}x ${i.title}`).join(', ')}
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xl font-bold text-green-600 mb-2">${o.toplamTutar} TL</div>
+                        <select onchange="updateStatus('${o._id}', this.value)" class="text-xs bg-gray-50 border p-2 rounded-lg font-bold outline-none">
+                            <option value="">${o.durum}</option>
+                            <option value="Kargolandı">🚚 Kargolandı</option>
+                            <option value="Teslim Edildi">✅ Teslim Edildi</option>
+                            <option value="İptal">❌ İptal</option>
+                        </select>
+                    </div>
                 </div>
-            `).join('');
+            `).join('') : '<p class="text-center py-10 text-gray-400">Aktif sipariş bulunmuyor.</p>';
         }
 
+        async function updateStatus(id, s) { if(confirm('Güncellensin mi?')) { await fetchAPI('/api/siparisler/'+id, {method:'PUT', body:JSON.stringify({durum:s})}); loadOrders(); loadDashboard(); } }
+
+        // --- 💎 ÜRÜN YÖNETİMİ ---
         async function loadProducts() {
             const data = await fetchAPI('/api/urunler');
-            document.getElementById('productList').innerHTML = data.map(p => `
-                <tr class="border-b">
-                    <td class="py-2 flex items-center gap-2"><img src="${p.img}" class="w-8 h-8 rounded object-cover"> ${p.title}</td>
-                    <td>${p.stok} Adet</td>
-                    <td><button onclick="deleteProduct('${p._id}')" class="text-red-400">🗑️</button></td>
+            const tbody = document.getElementById('productList');
+            tbody.innerHTML = data.map(p => `
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="py-4 flex items-center gap-4">
+                        <img src="${p.img}" class="w-12 h-12 object-cover rounded-xl border border-gray-100 shadow-sm">
+                        <span class="font-bold text-gray-700">${p.title}</span>
+                    </td>
+                    <td class="text-center font-bold text-purple-600">${p.price} / ${p.stok} Adet</td>
+                    <td class="text-right"><button onclick="deleteProduct('${p._id}')" class="text-red-300 hover:text-red-500 text-lg transition"><i class="fas fa-trash-alt"></i></button></td>
                 </tr>
             `).join('');
         }
 
-        async function deleteProduct(id) { if(confirm('Sil?')) { await fetchAPI('/api/urunler/'+id, {method:'DELETE'}); loadProducts(); } }
-        
+        document.getElementById('addForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.innerText = "YÜKLENİYOR..."; btn.disabled = true;
+            
+            const p = {
+                title: document.getElementById('pName').value,
+                price: document.getElementById('pPrice').value,
+                stok: document.getElementById('pStock').value,
+                category: document.getElementById('pCat').value,
+                img: document.getElementById('pImg').value,
+                desc: document.getElementById('pDesc').value
+            };
+            
+            try {
+                await fetchAPI('/api/urunler', {method:'POST', body:JSON.stringify(p)});
+                alert('Ürün Başarıyla Eklendi!');
+                e.target.reset(); loadProducts(); loadDashboard();
+            } catch(e) { alert('Hata oluştu!'); }
+            finally { btn.innerText = "SİSTEME KAYDET"; btn.disabled = false; }
+        });
+
+        async function deleteProduct(id) { if(confirm('Bu ürünü silmek istediğine emin misin?')) { await fetchAPI('/api/urunler/'+id, {method:'DELETE'}); loadProducts(); } }
+
+        // --- 🎫 KUPONLAR ---
         async function loadCoupons() {
             const data = await fetchAPI('/api/kuponlar');
-            document.getElementById('couponList').innerHTML = data.map(c => `<tr class="border-b"><td class="py-2">${c.kod}</td><td>%${c.oran}</td><td><button onclick="deleteCoupon('${c._id}')">🗑️</button></td></tr>`).join('');
+            document.getElementById('couponList').innerHTML = data.map(c => `
+                <tr class="border-b">
+                    <td class="py-3 font-mono font-bold text-purple-600">${c.kod}</td>
+                    <td class="font-bold">%${c.oran}</td>
+                    <td class="text-right"><button onclick="deleteCoupon('${c._id}')" class="text-red-400">Sil</button></td>
+                </tr>
+            `).join('');
         }
 
+        document.getElementById('couponForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const c = { kod: document.getElementById('cCode').value.toUpperCase(), oran: document.getElementById('cRate').value };
+            await fetchAPI('/api/kuponlar', {method:'POST', body:JSON.stringify(c)});
+            e.target.reset(); loadCoupons();
+        });
+
+        // --- 📩 MESAJLAR ---
         async function loadMessages() {
             const data = await fetchAPI('/api/mesajlar');
-            document.getElementById('messageList').innerHTML = data.map(m => `<div class="stat-card"><h4 class="font-bold">${m.ad}</h4><p class="text-sm">${m.mesaj}</p></div>`).join('');
+            document.getElementById('messageList').innerHTML = data.map(m => `
+                <div class="stat-card block relative">
+                    <h4 class="font-bold text-gray-800">${m.ad}</h4>
+                    <p class="text-xs text-purple-400 mb-2">${m.email}</p>
+                    <p class="text-sm text-gray-600 italic">"${m.mesaj}"</p>
+                    <span class="absolute top-4 right-4 text-[10px] text-gray-300 uppercase">${m.tarih}</span>
+                </div>
+            `).join('');
         }
 
+        // --- ⚙️ AYARLAR ---
         async function loadSettings() {
             const s = await fetchAPI('/api/ayarlar');
-            if(s) { document.getElementById('setTel').value=s.tel||''; document.getElementById('setEmail').value=s.email||''; }
+            if(s) {
+                document.getElementById('setTel').value = s.tel || '';
+                document.getElementById('setEmail').value = s.email || '';
+                document.getElementById('setAddress').value = s.address || '';
+                document.getElementById('setInsta').value = s.insta || '';
+                document.getElementById('setAnalytics').value = s.analytics || '';
+            }
         }
+
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const s = {
+                tel: document.getElementById('setTel').value,
+                email: document.getElementById('setEmail').value,
+                address: document.getElementById('setAddress').value,
+                insta: document.getElementById('setInsta').value,
+                analytics: document.getElementById('setAnalytics').value
+            };
+            await fetchAPI('/api/ayarlar', {method:'POST', body:JSON.stringify(s)});
+            alert('Tüm Ayarlar Güncellendi!');
+        });
     </script>
 </body>
 </html>
