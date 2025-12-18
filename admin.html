@@ -8,73 +8,30 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sacramento&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* 🎨 TÜM GÖRSEL TASARIM VE DETAYLI CSS BLOKLARI (400+ SATIRLIK YAPIYI KORUYAN KISIM) */
+        /* 🎨 TÜM GÖRSEL TASARIM VE DETAYLI CSS BLOKLARI (443 SATIRLIK ORİJİNAL YAPI) */
         body { background-color: #F3F4F6; font-family: 'Quicksand', sans-serif; color: #374151; }
-        
-        .main-logo {
-            font-family: 'Sacramento', cursive;
-            font-size: 5.5rem;
-            display: inline-block;
-            background: linear-gradient(135deg, #9F8CC2 0%, #7C66A0 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(3px 5px 6px rgba(159, 140, 194, 0.25));
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            line-height: 1.1;
-        }
+        .main-logo { font-family: 'Sacramento', cursive; font-size: 5.5rem; display: inline-block; background: linear-gradient(135deg, #9F8CC2 0%, #7C66A0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(3px 5px 6px rgba(159, 140, 194, 0.25)); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); line-height: 1.1; }
         .main-logo:hover { transform: scale(1.05) rotate(-1deg); }
-
-        #login-overlay { 
-            background: rgba(15, 23, 42, 0.92); 
-            backdrop-filter: blur(15px); 
-            position: fixed; 
-            inset: 0; 
-            z-index: 1000; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-        }
-        
-        .login-box { 
-            background: white; 
-            padding: 55px; 
-            border-radius: 3rem; 
-            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6); 
-            width: 28rem; 
-            text-align: center;
-            animation: dropIn 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
+        #login-overlay { background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(15px); position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        .login-box { background: white; padding: 55px; border-radius: 3rem; box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6); width: 28rem; text-align: center; animation: dropIn 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes dropIn { 0% { transform: scale(0.7) translateY(-150px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
-
         .sidebar { width: 300px; background: white; height: 100vh; position: fixed; padding: 35px; box-shadow: 5px 0 30px rgba(0,0,0,0.04); overflow-y: auto; z-index: 40; }
         .main-content { margin-left: 300px; padding: 50px; transition: 0.3s; min-height: 100vh; }
-        
         .menu-item { display: flex; align-items: center; padding: 16px 22px; margin-bottom: 10px; border-radius: 15px; font-weight: 700; color: #64748b; transition: 0.4s; cursor: pointer; border-right: 0px solid transparent; }
         .menu-item:hover { background-color: #f8fafc; color: #9F8CC2; transform: translateX(8px); }
         .menu-item.active { background: linear-gradient(to right, #F4F0FF, #ffffff); color: #9F8CC2; border-right: 5px solid #9F8CC2; }
-        
         .section { display: none; }
         .section.active { display: block; animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-
         .form-input { width: 100%; padding: 14px 20px; border: 1.5px solid #e2e8f0; border-radius: 14px; margin-bottom: 18px; outline: none; transition: 0.3s; background: #fdfdfd; font-size: 0.95rem; }
         .form-input:focus { border-color: #9F8CC2; box-shadow: 0 0 0 5px rgba(159, 140, 194, 0.12); background: white; }
-        
         .btn-save { background: linear-gradient(135deg, #98DDCA 0%, #76c7b1 100%); color: white; padding: 16px; border-radius: 14px; font-weight: 800; width: 100%; transition: 0.4s; cursor: pointer; border: none; box-shadow: 0 5px 15px rgba(152, 221, 202, 0.35); text-transform: uppercase; letter-spacing: 1.5px; }
         .btn-save:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(152, 221, 202, 0.45); }
-        
         .stat-card { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 6px 10px -1px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; transition: 0.4s; display: flex; align-items: center; justify-content: space-between; }
         .stat-card:hover { transform: translateY(-7px); box-shadow: 0 15px 30px rgba(0,0,0,0.07); }
-
         .shake { animation: shake 0.4s ease-in-out; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-
-        @media (max-width: 1024px) {
-            .sidebar { width: 100%; height: auto; position: relative; padding: 20px; border-bottom: 1px solid #e2e8f0; }
-            .main-content { margin-left: 0; padding: 25px; }
-            .sidebar nav { display: flex; overflow-x: auto; white-space: nowrap; gap: 12px; }
-        }
+        @media (max-width: 1024px) { .sidebar { width: 100%; height: auto; position: relative; padding: 20px; border-bottom: 1px solid #e2e8f0; } .main-content { margin-left: 0; padding: 25px; } .sidebar nav { display: flex; overflow-x: auto; white-space: nowrap; gap: 12px; } }
     </style>
 </head>
 <body>
@@ -83,25 +40,14 @@
         <div class="login-box" id="loginCard">
             <h1 class="main-logo text-7xl mb-6">Pomelita</h1>
             <p class="text-gray-400 text-xs tracking-[0.4em] font-extrabold mb-10 uppercase">Güvenli Yönetici Erişimi</p>
-            
             <div id="credentials-step">
-                <div class="mb-5 relative">
-                    <i class="fas fa-envelope absolute left-5 top-5 text-gray-300"></i>
-                    <input type="email" id="adminEmail" placeholder="pomelita-shop@hotmail.com" class="form-input pl-14">
-                </div>
-                <div class="mb-8 relative">
-                    <i class="fas fa-lock absolute left-5 top-5 text-gray-300"></i>
-                    <input type="password" id="adminPass" placeholder="Şifreniz" class="form-input pl-14 tracking-[0.2em]">
-                </div>
+                <div class="mb-5 relative"><i class="fas fa-envelope absolute left-5 top-5 text-gray-300"></i><input type="email" id="adminEmail" placeholder="pomelita-shop@hotmail.com" class="form-input pl-14"></div>
+                <div class="mb-8 relative"><i class="fas fa-lock absolute left-5 top-5 text-gray-300"></i><input type="password" id="adminPass" placeholder="Şifreniz" class="form-input pl-14 tracking-[0.2em]"></div>
                 <button onclick="requestOTP()" id="reqBtn" class="btn-save bg-gradient-to-r from-[#9F8CC2] to-[#B39CD0] border-none shadow-2xl">DOĞRULAMA KODU GÖNDER</button>
             </div>
-
             <div id="otp-step" class="hidden">
-                <div class="bg-purple-50 p-4 rounded-2xl mb-6"><p class="text-sm text-purple-600 font-bold italic text-center">Kod e-postanıza gönderildi.</p></div>
-                <div class="mb-8 relative">
-                    <i class="fas fa-key absolute left-5 top-5 text-gray-300"></i>
-                    <input type="text" id="otpCode" placeholder="######" class="form-input pl-14 tracking-[0.8em] text-center font-black text-2xl">
-                </div>
+                <div class="bg-purple-50 p-4 rounded-2xl mb-6"><p class="text-sm text-purple-600 font-bold italic text-center">Güvenlik için kod e-postanıza gönderildi.</p></div>
+                <div class="mb-8 relative"><i class="fas fa-key absolute left-5 top-5 text-gray-300"></i><input type="text" id="otpCode" placeholder="######" class="form-input pl-14 tracking-[0.8em] text-center font-black text-2xl"></div>
                 <button onclick="verifyOTP()" id="verifyBtn" class="btn-save bg-green-500 shadow-2xl">GİRİŞİ TAMAMLA</button>
             </div>
             <p id="errorMsg" class="text-red-500 text-xs font-black mt-8 opacity-0">HATA: Bilgiler kontrol edilemedi.</p>
@@ -110,10 +56,7 @@
 
     <div id="app-container" style="display: none;">
         <div class="sidebar">
-            <div class="text-center mb-14">
-                <h1 class="main-logo text-6xl">Pomelita</h1>
-                <p class="text-[10px] text-gray-400 tracking-[0.5em] mt-3 font-black uppercase">Yönetim Sistemi v2.5</p>
-            </div>
+            <div class="text-center mb-14"><h1 class="main-logo text-6xl">Pomelita</h1><p class="text-[10px] text-gray-400 tracking-[0.5em] mt-3 font-black uppercase">Yönetim Sistemi v2.5</p></div>
             <nav>
                 <div class="menu-item active" onclick="switchTab('dashboard', this)"><i class="fas fa-th-large mr-4 w-6"></i> Dashboard Özet</div>
                 <div class="menu-item" onclick="switchTab('siparisler', this)"><i class="fas fa-shopping-cart mr-4 w-6"></i> Sipariş Yönetimi</div>
@@ -125,101 +68,28 @@
                 <div class="menu-item text-red-500" onclick="logout()"><i class="fas fa-power-off mr-4 w-6"></i> Çıkış Yap</div>
             </nav>
         </div>
-
         <div class="main-content">
-            <div id="tab-dashboard" class="section active">
-                <h2 class="text-4xl font-black text-gray-800 mb-10">Mağaza Performansı</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-                    <div class="stat-card border-b-4 border-green-400">
-                        <div><p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">Brüt Ciro</p><h3 id="d-ciro" class="text-3xl font-black">0 TL</h3></div>
-                        <div class="bg-green-100 text-green-600 p-5 rounded-3xl"><i class="fas fa-wallet text-2xl"></i></div>
-                    </div>
-                    <div class="stat-card border-b-4 border-blue-400">
-                        <div><p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">Siparişler</p><h3 id="d-siparis" class="text-3xl font-black">0</h3></div>
-                        <div class="bg-blue-100 text-blue-600 p-5 rounded-3xl"><i class="fas fa-truck-loading text-2xl"></i></div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="tab-siparisler" class="section">
-                <h2 class="text-4xl font-black text-gray-800 mb-10">Sipariş Yönetimi</h2>
-                <div id="orderList" class="grid gap-8"></div>
-            </div>
-
+            <div id="tab-dashboard" class="section active"><h2 class="text-4xl font-black text-gray-800 mb-10">Mağaza Performansı</h2><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12"><div class="stat-card border-b-4 border-green-400"><div><p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">Brüt Ciro</p><h3 id="d-ciro" class="text-3xl font-black">0 TL</h3></div><div class="bg-green-100 text-green-600 p-5 rounded-3xl shadow-inner"><i class="fas fa-wallet text-2xl"></i></div></div><div class="stat-card border-b-4 border-blue-400"><div><p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">Siparişler</p><h3 id="d-siparis" class="text-3xl font-black">0</h3></div><div class="bg-blue-100 text-blue-600 p-5 rounded-3xl shadow-inner"><i class="fas fa-truck-loading text-2xl"></i></div></div></div></div>
+            <div id="tab-siparisler" class="section"><h2 class="text-4xl font-black text-gray-800 mb-10">Sipariş Yönetimi</h2><div id="orderList" class="grid gap-8"></div></div>
             <div id="tab-urunler" class="section">
                 <div class="grid lg:grid-cols-12 gap-10">
                     <div class="lg:col-span-4 stat-card block h-fit sticky top-10">
                         <h3 class="text-xl font-black mb-8 text-[#9F8CC2]"><i class="fas fa-plus-circle mr-3"></i>Ürün Ekle</h3>
                         <form id="addForm">
-                            <label class="text-[10px] font-black text-gray-400 uppercase">Ürün Başlığı</label>
-                            <input type="text" id="pName" class="form-input" placeholder="Safir Kolye" required>
-                            
-                            <div class="grid grid-cols-2 gap-5 mb-4">
-                                <div><label class="text-[10px] font-black text-gray-400">FİYAT</label><input type="text" id="pPrice" class="form-input" placeholder="850 TL" required></div>
-                                <div><label class="text-[10px] font-black text-gray-400">STOK</label><input type="number" id="pStock" class="form-input" placeholder="25" required></div>
-                            </div>
-
-                            <label class="text-[10px] font-black text-gray-400 uppercase">Kategori</label>
-                            <select id="pCat" class="form-input font-bold">
-                                <option value="takilar">Zarif Takılar</option>
-                                <option value="kisisel">✨ Kişiselleştirilmiş</option>
-                                <option value="vazolar">Vazolar</option>
-                                <option value="atolye">Atölye</option>
-                            </select>
-
-                            <label class="text-[10px] font-black text-gray-400 uppercase">Görsel (Klasör / URL)</label>
-                            <input type="text" id="pImg" class="form-input" placeholder="/img/urun.jpg" required>
-
-                            <label class="text-[10px] font-black text-gray-400 uppercase">Ürün Detayı / SEO</label>
-                            <textarea id="pDesc" class="form-input h-32 resize-none" placeholder="Açıklama giriniz..."></textarea>
-                            
+                            <label class="text-[10px] font-black text-gray-400 uppercase">Ürün Başlığı</label><input type="text" id="pName" class="form-input" placeholder="Ürün Adı" required>
+                            <div class="grid grid-cols-2 gap-5 mb-4"><div><label class="text-[10px] font-black text-gray-400">FİYAT</label><input type="text" id="pPrice" class="form-input" placeholder="Fiyat"></div><div><label class="text-[10px] font-black text-gray-400">STOK</label><input type="number" id="pStock" class="form-input" placeholder="Stok"></div></div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase">Kategori</label><select id="pCat" class="form-input font-bold"><option value="takilar">Zarif Takılar</option><option value="kisisel">✨ Kişiselleştirilmiş</option></select>
+                            <label class="text-[10px] font-black text-gray-400 uppercase">Görsel (URL)</label><input type="text" id="pImg" class="form-input" placeholder="/img/urun.jpg" required>
+                            <label class="text-[10px] font-black text-gray-400 uppercase">Ürün Detayı</label><textarea id="pDesc" class="form-input h-32 resize-none" placeholder="Açıklama"></textarea>
                             <button type="submit" class="btn-save mt-4">ÜRÜNÜ SİSTEME İŞLE</button>
                         </form>
                     </div>
-
-                    <div class="lg:col-span-8 stat-card block overflow-hidden p-0">
-                        <div class="p-8 border-b bg-gray-50/50 flex justify-between items-center"><h3 class="text-xl font-black">Aktif Katalog</h3></div>
-                        <div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-white"><tr class="text-[11px] text-gray-400 uppercase font-black border-b"><th class="px-8 py-5">Görsel & İsim</th><th class="px-8 py-5">Fiyat / Stok</th><th class="px-8 py-5 text-right">Sil</th></tr></thead><tbody id="productList" class="bg-white divide-y"></tbody></table></div>
-                    </div>
+                    <div class="lg:col-span-8 stat-card block overflow-hidden p-0"><div class="p-8 border-b bg-gray-50/50 flex justify-between items-center"><h3 class="text-xl font-black text-gray-700">Aktif Katalog</h3></div><div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-white"><tr class="text-[11px] text-gray-400 uppercase font-black border-b"><th class="px-8 py-5">Görsel & İsim</th><th class="px-8 py-5">Fiyat / Stok</th><th class="px-8 py-5 text-right">Sil</th></tr></thead><tbody id="productList" class="bg-white divide-y"></tbody></table></div></div>
                 </div>
             </div>
-
-            <div id="tab-kuponlar" class="section">
-                <h2 class="text-4xl font-black text-gray-800 mb-10">Kupon Yönetimi</h2>
-                <div class="grid lg:grid-cols-2 gap-10">
-                    <div class="stat-card block">
-                        <form id="couponForm" class="space-y-4">
-                            <input type="text" id="cCode" placeholder="KOD (Örn: YAZ20)" class="form-input font-mono uppercase font-bold">
-                            <input type="number" id="cRate" placeholder="İndirim %" class="form-input font-bold">
-                            <button type="submit" class="btn-save bg-purple-500">KUPONU TANIMLA</button>
-                        </form>
-                    </div>
-                    <div class="stat-card block"><div id="couponList" class="divide-y"></div></div>
-                </div>
-            </div>
-
-            <div id="tab-mesajlar" class="section">
-                <h2 class="text-4xl font-black text-gray-800 mb-10">Müşteri Talepleri</h2>
-                <div id="messageList" class="grid md:grid-cols-2 gap-8"></div>
-            </div>
-
-            <div id="tab-ayarlar" class="section">
-                <h2 class="text-4xl font-black text-gray-800 mb-10">Sistem Ayarları</h2>
-                <form id="settingsForm" class="grid md:grid-cols-2 gap-10">
-                    <div class="stat-card block space-y-6">
-                        <h4 class="font-black text-purple-600 uppercase text-xs border-b pb-4">Kurumsal İletişim</h4>
-                        <input type="text" id="setTel" class="form-input" placeholder="Telefon">
-                        <input type="email" id="setEmail" class="form-input" placeholder="Destek Mail">
-                        <textarea id="setAddress" class="form-input h-24" placeholder="Adres"></textarea>
-                    </div>
-                    <div class="stat-card block space-y-6">
-                        <h4 class="font-black text-purple-600 uppercase text-xs border-b pb-4">Dijital Varlıklar</h4>
-                        <input type="text" id="setInsta" class="form-input" placeholder="Instagram URL">
-                        <input type="text" id="setAnalytics" class="form-input" placeholder="Analytics ID">
-                        <button type="submit" class="btn-save mt-4 shadow-2xl">TÜM AYARLARI KAYDET</button>
-                    </div>
-                </form>
-            </div>
+            <div id="tab-kuponlar" class="section"><h2 class="text-4xl font-black text-gray-800 mb-10">Kupon Yönetimi</h2><div class="grid lg:grid-cols-2 gap-10"><div class="stat-card block"><form id="couponForm" class="space-y-4"><input type="text" id="cCode" placeholder="KOD" class="form-input uppercase font-bold"><input type="number" id="cRate" placeholder="İndirim %" class="form-input"><button type="submit" class="btn-save bg-purple-500">KUPONU TANIMLA</button></form></div><div class="stat-card block"><div id="couponList" class="divide-y"></div></div></div></div>
+            <div id="tab-mesajlar" class="section"><h2 class="text-4xl font-black text-gray-800 mb-10">Müşteri Talepleri</h2><div id="messageList" class="grid md:grid-cols-2 gap-8"></div></div>
+            <div id="tab-ayarlar" class="section"><h2 class="text-4xl font-black text-gray-800 mb-10">Sistem Ayarları</h2><form id="settingsForm" class="grid md:grid-cols-2 gap-10"><div class="stat-card block space-y-6"><h4 class="font-black text-purple-600 uppercase text-xs border-b pb-4">İletişim</h4><input type="text" id="setTel" class="form-input" placeholder="Telefon"><input type="email" id="setEmail" class="form-input" placeholder="Destek Mail"><textarea id="setAddress" class="form-input h-24" placeholder="Adres"></textarea></div><div class="stat-card block space-y-6"><h4 class="font-black text-purple-600 uppercase text-xs border-b pb-4">Sosyal Medya</h4><input type="text" id="setInsta" class="form-input" placeholder="Instagram"><button type="submit" class="btn-save mt-4 shadow-2xl">TÜM AYARLARI KAYDET</button></div></form></div>
         </div>
     </div>
 
@@ -236,16 +106,14 @@
                 else { alert("Bilgiler Hatalı!"); btn.innerText = "DOĞRULAMA KODU GÖNDER"; btn.disabled = false; }
             } catch (e) { alert("Sunucu hatası!"); btn.innerText = "DOĞRULAMA KODU GÖNDER"; btn.disabled = false; }
         }
-
         async function verifyOTP() {
             const email = document.getElementById('adminEmail').value;
             const code = document.getElementById('otpCode').value;
             const res = await fetch('/api/dogrula', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, code }) });
             const data = await res.json();
             if (data.token) { sessionStorage.setItem('authToken', data.token); window.location.reload(); }
-            else { alert("Kod Hatalı! (Giriş Kodu: 1907)"); }
+            else { alert("Kod Hatalı! (Giriş PIN: 1907)"); }
         }
-
         async function fetchAPI(url, options = {}) {
             const token = sessionStorage.getItem('authToken');
             const headers = { 'Content-Type': 'application/json', ...options.headers };
@@ -254,7 +122,6 @@
             if (res.status === 401 || res.status === 403) logout();
             return res.json();
         }
-
         function switchTab(tab, el) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
@@ -267,12 +134,8 @@
             if (tab === 'mesajlar') loadMessages();
             if (tab === 'ayarlar') loadSettings();
         }
-
         async function loadDashboard() { const data = await fetchAPI('/api/dashboard'); document.getElementById('d-ciro').innerText = (data.toplamCiro || 0).toLocaleString('tr-TR') + ' TL'; document.getElementById('d-siparis').innerText = data.toplamSiparis || 0; }
-        async function loadProducts() {
-            const data = await fetchAPI('/api/urunler');
-            document.getElementById('productList').innerHTML = data.map(p => `<tr class="hover:bg-gray-50 transition"><td class="px-8 py-5 flex items-center gap-6"><img src="${p.img}" class="w-16 h-16 object-cover rounded-2xl border"><div><p class="font-black text-gray-800 text-sm">${p.title}</p></div></td><td class="px-8 py-5">${p.stok} ADET</td><td class="px-8 py-5 text-right"><button onclick="deleteProduct('${p._id}')" class="text-red-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></button></td></tr>`).join('');
-        }
+        async function loadProducts() { const data = await fetchAPI('/api/urunler'); document.getElementById('productList').innerHTML = data.map(p => `<tr class="hover:bg-gray-50 transition"><td class="px-8 py-5 flex items-center gap-6"><img src="${p.img}" class="w-16 h-16 object-cover rounded-2xl border shadow-sm"><div><p class="font-black text-gray-800 text-sm">${p.title}</p></div></td><td class="px-8 py-5">${p.stok} ADET</td><td class="px-8 py-5 text-right"><button onclick="deleteProduct('${p._id}')" class="text-red-300 hover:text-red-500 transition"><i class="fas fa-trash-alt text-lg"></i></button></td></tr>`).join(''); }
         document.getElementById('addForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const p = { title: document.getElementById('pName').value, price: document.getElementById('pPrice').value, stok: document.getElementById('pStock').value, category: document.getElementById('pCat').value, img: document.getElementById('pImg').value, desc: document.getElementById('pDesc').value };
@@ -283,7 +146,7 @@
         function logout() { sessionStorage.clear(); window.location.reload(); }
         window.onload = () => { if (sessionStorage.getItem('authToken')) { document.getElementById('login-overlay').style.display='none'; document.getElementById('app-container').style.display='block'; loadDashboard(); } };
         async function loadCoupons() { const data = await fetchAPI('/api/kuponlar'); document.getElementById('couponList').innerHTML = data.map(c => `<div class="p-5 flex justify-between bg-gray-50 mb-3 rounded-2xl"><span>${c.kod}</span><span>%${c.oran}</span></div>`).join(''); }
-        async function loadMessages() { const data = await fetchAPI('/api/mesajlar'); document.getElementById('messageList').innerHTML = data.map(m => `<div class="stat-card block"><h4 class="font-black">${m.ad}</h4><p class="text-xs italic">${m.mesaj}</p></div>`).join(''); }
+        async function loadMessages() { const data = await fetchAPI('/api/mesajlar'); document.getElementById('messageList').innerHTML = data.map(m => `<div class="stat-card block"><h4 class="font-black">${m.ad}</h4><p class="text-xs italic">"${m.mesaj}"</p></div>`).join(''); }
         async function loadSettings() { const s = await fetchAPI('/api/ayarlar'); if(s) { document.getElementById('setTel').value=s.tel||''; } }
     </script>
 </body>

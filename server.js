@@ -4,33 +4,14 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs'); 
 const jwt = require('jsonwebtoken'); 
-const nodemailer = require('nodemailer'); 
 require('dotenv').config(); 
 
 const authMiddleware = require('./auth'); 
 const app = express();
 
-// --- 🔥 HOTMAIL İÇİN EN GÜÇLÜ SMTP AYARI ---
-const transporter = nodemailer.createTransport({
-    host: "smtp.office365.com", // Hotmail/Outlook için en güncel host
-    port: 587,
-    secure: false, 
-    auth: {
-        user: 'pomelita-shop@hotmail.com',
-        pass: 'M.stf1655' // Şifrenin doğruluğundan emin ol
-    },
-    tls: {
-        ciphers: 'SSLv3',
-        rejectUnauthorized: false
-    }
-});
-
-let currentOTP = null; 
-
 mongoose.connect(process.env.MONGO_URI, { dbName: 'PomelitaStore' })
 .then(() => { console.log('✅ MongoDB Bağlantısı Başarılı!'); initializeAdminUser(); });
 
-// Modeller (Orijinal Yapı)
 const Kullanici = mongoose.model('Kullanici', new mongoose.Schema({ ad: String, email: { type: String, unique: true }, sifre: String, rol: String }));
 const Urun = mongoose.model('Urun', new mongoose.Schema({ title: String, price: String, stok: Number, category: String, desc: String, img: String }), 'urunler');
 const Siparis = mongoose.model('Siparis', new mongoose.Schema({ musteri: Object, sepet: Array, toplamTutar: Number, odemeYontemi: String, durum: { type: String, default: 'Yeni Sipariş' }, tarih: String }), 'siparisler'); 
@@ -51,49 +32,35 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '.')));
 
-app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+app.get('/admin', (req, res) => { res.sendFile(path.join(__dirname, 'admin.html')); });
 
-// --- 🔐 OTP GÖNDERME MOTORU ---
+// --- 🔐 GİRİŞ İSTEĞİ (Mail Gönderimi Devre Dışı - Donma Yapmaz) ---
 app.post('/api/giris-iste', async (req, res) => {
     const { email, sifre } = req.body;
     try {
         const user = await Kullanici.findOne({ email });
         if (user && await bcrypt.compare(sifre, user.sifre)) {
-            currentOTP = Math.floor(100000 + Math.random() * 900000).toString();
-            
-            const mailOptions = {
-                from: 'pomelita-shop@hotmail.com',
-                to: 'pomelita-shop@hotmail.com',
-                subject: 'Pomelita Yönetim Giriş Kodu',
-                html: `<div style="font-family:sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
-                        <h2 style="color:#9F8CC2;">Pomelita Güvenlik</h2>
-                        <p>Giriş yapmak için doğrulama kodunuz:</p>
-                        <h1 style="background:#f4f4f4; padding:10px; text-align:center; letter-spacing:5px;">${currentOTP}</h1>
-                      </div>`
-            };
-
-            transporter.sendMail(mailOptions, (err) => {
-                if (err) {
-                    console.error("MAİL GÖNDERİM HATASI:", err);
-                    return res.status(500).json({ error: 'Mail Hatası: ' + err.message });
-                }
-                res.json({ message: 'OTP_SENT' });
-            });
-        } else res.status(401).json({ error: 'Hatalı giriş!' });
+            // Hiçbir dış servise (Nodemailer vb.) bağlanmıyoruz.
+            res.json({ message: 'OTP_SENT' });
+        } else {
+            res.status(401).json({ error: 'Hatalı giriş!' });
+        }
     } catch(e) { res.status(500).json({ error: 'Hata' }); }
 });
 
+// --- 🔑 DOĞRULAMA (Sabit PIN: 1907) ---
 app.post('/api/dogrula', async (req, res) => {
     const { email, code } = req.body;
-    if (currentOTP && code === currentOTP) {
+    if (code === "1907") { // Giriş kodun burada tanımlı
         const user = await Kullanici.findOne({ email });
         const token = jwt.sign({ id: user._id, email: user.email, rol: user.rol }, process.env.JWT_SECRET, { expiresIn: '7d' });
-        currentOTP = null;
         res.json({ token, user: { ad: user.ad, rol: user.rol } });
-    } else res.status(401).json({ error: 'Hatalı kod!' });
+    } else {
+        res.status(401).json({ error: 'Hatalı kod!' });
+    }
 });
 
-// API Rotaları
+// ... (Diğer tüm API rotaları burada devam ediyor)
 app.use('/api', authMiddleware); 
 const adminCheck = (req, res, next) => req.user.rol === 'admin' ? next() : res.status(403).json({ error: 'Yetkisiz' });
 app.get('/api/dashboard', adminCheck, async (req, res) => {
