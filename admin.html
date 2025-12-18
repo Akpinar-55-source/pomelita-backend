@@ -227,45 +227,61 @@
     </div>
 
     <script>
-        // --- ⚙️ API & OTP FONKSİYONLARI (Kısaltılmamış Orijinal Mantık) ---
-       async function requestOTP() {
-    const email = document.getElementById('adminEmail').value;
-    const sifre = document.getElementById('adminPass').value;
-    const btn = document.getElementById('reqBtn');
-    
-    btn.innerText = "İŞLENİYOR...";
-    btn.disabled = true;
+        // --- ⚙️ API & OTP FONKSİYONLARI ---
+        async function requestOTP() {
+            const email = document.getElementById('adminEmail').value;
+            const sifre = document.getElementById('adminPass').value;
+            const btn = document.getElementById('reqBtn');
+            const errorMsg = document.getElementById('errorMsg');
+            
+            btn.innerText = "İŞLENİYOR...";
+            btn.disabled = true;
 
-    try {
-        const res = await fetch('/api/giris-iste', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, sifre })
-        });
-        const data = await res.json();
-        
-        if (data.message === 'OTP_SENT') {
-            document.getElementById('credentials-step').classList.add('hidden');
-            document.getElementById('otp-step').classList.remove('hidden');
-        } else {
-            alert("Bilgiler hatalı!");
-            btn.innerText = "KOD GÖNDER";
-            btn.disabled = false;
+            try {
+                const res = await fetch('/api/giris-iste', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, sifre })
+                });
+                const data = await res.json();
+                
+                if (data.message === 'OTP_SENT') {
+                    document.getElementById('credentials-step').classList.add('hidden');
+                    document.getElementById('otp-step').classList.remove('hidden');
+                    errorMsg.style.opacity = '0';
+                } else {
+                    throw new Error("Hata");
+                }
+            } catch (e) {
+                document.getElementById('loginCard').classList.add('shake');
+                errorMsg.style.opacity = '1';
+                setTimeout(() => {
+                    document.getElementById('loginCard').classList.remove('shake');
+                    btn.innerText = "DOĞRULAMA KODU GÖNDER";
+                    btn.disabled = false;
+                }, 400);
+            }
         }
-    } catch (e) {
-        alert("Bağlantı hatası!");
-        btn.innerText = "KOD GÖNDER";
-        btn.disabled = false;
-    }
-}
 
         async function verifyOTP() {
             const email = document.getElementById('adminEmail').value;
             const code = document.getElementById('otpCode').value;
-            const res = await fetch('/api/dogrula', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, code }) });
-            const data = await res.json();
-            if (data.token) { sessionStorage.setItem('authToken', data.token); window.location.reload(); }
-            else { alert("Kod Hatalı!"); }
+            try {
+                const res = await fetch('/api/dogrula', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, code })
+                });
+                const data = await res.json();
+                if (data.token) {
+                    sessionStorage.setItem('authToken', data.token);
+                    window.location.reload();
+                } else {
+                    alert("Kod Hatalı!");
+                }
+            } catch (e) {
+                alert("Sistem Hatası!");
+            }
         }
 
         async function fetchAPI(url, options = {}) {
@@ -282,6 +298,7 @@
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
             document.getElementById('tab-' + tab).classList.add('active');
             if(el) el.classList.add('active');
+            
             if (tab === 'dashboard') loadDashboard();
             if (tab === 'siparisler') loadOrders();
             if (tab === 'urunler') loadProducts();
@@ -290,8 +307,12 @@
             if (tab === 'ayarlar') loadSettings();
         }
 
-        async function loadDashboard() { const data = await fetchAPI('/api/dashboard'); document.getElementById('d-ciro').innerText = (data.toplamCiro || 0).toLocaleString('tr-TR') + ' TL'; document.getElementById('d-siparis').innerText = data.toplamSiparis || 0; }
-        
+        async function loadDashboard() {
+            const data = await fetchAPI('/api/dashboard');
+            document.getElementById('d-ciro').innerText = (data.toplamCiro || 0).toLocaleString('tr-TR') + ' TL';
+            document.getElementById('d-siparis').innerText = data.toplamSiparis || 0;
+        }
+
         async function loadProducts() {
             const data = await fetchAPI('/api/urunler');
             document.getElementById('productList').innerHTML = data.map(p => `
@@ -308,9 +329,20 @@
 
         document.getElementById('addForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const p = { title: document.getElementById('pName').value, price: document.getElementById('pPrice').value, stok: document.getElementById('pStock').value, category: document.getElementById('pCat').value, img: document.getElementById('pImg').value, desc: document.getElementById('pDesc').value };
-            await fetchAPI('/api/urunler', {method:'POST', body:JSON.stringify(p)});
-            alert('Ürün Eklendi!'); e.target.reset(); loadProducts();
+            const p = {
+                title: document.getElementById('pName').value,
+                price: document.getElementById('pPrice').value,
+                stok: document.getElementById('pStock').value,
+                category: document.getElementById('pCat').value,
+                img: document.getElementById('pImg').value,
+                desc: document.getElementById('pDesc').value
+            };
+            try {
+                await fetchAPI('/api/urunler', {method:'POST', body:JSON.stringify(p)});
+                alert('Ürün Eklendi!'); e.target.reset(); loadProducts();
+            } catch(err) {
+                alert('Hata oluştu!');
+            }
         });
 
         async function deleteProduct(id) { if(confirm('Silinsin mi?')) { await fetchAPI('/api/urunler/'+id, {method:'DELETE'}); loadProducts(); } }
