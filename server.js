@@ -4,24 +4,29 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs'); 
 const jwt = require('jsonwebtoken'); 
-const nodemailer = require('nodemailer'); // Yeni eklendi
+const nodemailer = require('nodemailer'); 
 require('dotenv').config(); 
 
 const authMiddleware = require('./auth'); 
 const app = express();
 
-// --- E-POSTA AYARI (Nodemailer) ---
+// --- E-POSTA AYARI ---
 const transporter = nodemailer.createTransport({
-    service: 'hotmail',
+    host: "smtp-mail.outlook.com", // Hotmail için daha kararlı host
+    port: 587,
+    secure: false, 
     auth: {
         user: 'pomelita-shop@hotmail.com',
-        pass: 'M.stf1655' // Dikkat: Buraya gerçek şifreni yazmalısın
+        pass: 'M.stf1655' // Buraya tırnak içinde gerçek şifreni yaz
+    },
+    tls: {
+        ciphers: 'SSLv3',
+        rejectUnauthorized: false
     }
 });
 
-let currentOTP = null; // Geçici doğrulama kodu
+let currentOTP = null; 
 
-// --- MONGO VE MODELLER (Aynı kalıyor) ---
 mongoose.connect(process.env.MONGO_URI, { dbName: 'PomelitaStore' })
 .then(() => { console.log('✅ MongoDB Bağlantısı Başarılı!'); initializeAdminUser(); });
 
@@ -45,26 +50,25 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '.')));
 
-app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
-
-// --- 🔐 YENİ GİRİŞ VE DOĞRULAMA ROTASI ---
 app.post('/api/giris-iste', async (req, res) => {
     const { email, sifre } = req.body;
     try {
         const user = await Kullanici.findOne({ email });
         if (user && await bcrypt.compare(sifre, user.sifre)) {
-            // 6 haneli kod üret
             currentOTP = Math.floor(100000 + Math.random() * 900000).toString();
             
             const mailOptions = {
                 from: 'pomelita-shop@hotmail.com',
-                to: 'pomelita-shop@hotmail.com', // Kodu kendine gönderiyorsun
-                subject: 'Pomelita Admin Giriş Kodu',
-                text: `Giriş yapmak için doğrulama kodunuz: ${currentOTP}`
+                to: 'pomelita-shop@hotmail.com',
+                subject: 'Pomelita Giriş Kodu',
+                text: `Admin paneli giriş kodunuz: ${currentOTP}`
             };
 
-            transporter.sendMail(mailOptions, (err, info) => {
-                if (err) return res.status(500).json({ error: 'Mail gönderilemedi' });
+            transporter.sendMail(mailOptions, (err) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(500).json({ error: 'Mail Hatası: ' + err.message });
+                }
                 res.json({ message: 'OTP_SENT' });
             });
         } else res.status(401).json({ error: 'Hatalı giriş!' });
@@ -73,17 +77,14 @@ app.post('/api/giris-iste', async (req, res) => {
 
 app.post('/api/dogrula', async (req, res) => {
     const { email, code } = req.body;
-    if (code === currentOTP) {
+    if (currentOTP && code === currentOTP) {
         const user = await Kullanici.findOne({ email });
         const token = jwt.sign({ id: user._id, email: user.email, rol: user.rol }, process.env.JWT_SECRET, { expiresIn: '7d' });
-        currentOTP = null; // Kodu sıfırla
+        currentOTP = null;
         res.json({ token, user: { ad: user.ad, rol: user.rol } });
-    } else {
-        res.status(401).json({ error: 'Hatalı kod!' });
-    }
+    } else res.status(401).json({ error: 'Hatalı kod!' });
 });
 
-// ... Diğer API Rotaları (Aynı kalıyor, ciro filtreleme dahil) ...
 app.use('/api', authMiddleware); 
 const adminCheck = (req, res, next) => req.user.rol === 'admin' ? next() : res.status(403).json({ error: 'Yetkisiz' });
 app.get('/api/dashboard', adminCheck, async (req, res) => {
@@ -94,6 +95,11 @@ app.get('/api/dashboard', adminCheck, async (req, res) => {
 app.get('/api/urunler', async (req, res) => res.json(await Urun.find({})));
 app.post('/api/urunler', adminCheck, async (req, res) => { await new Urun(req.body).save(); res.json({ m: 'OK' }); });
 app.delete('/api/urunler/:id', adminCheck, async (req, res) => { await Urun.findByIdAndDelete(req.params.id); res.json({ m: 'OK' }); });
+app.get('/api/siparisler', adminCheck, async (req, res) => res.json(await Siparis.find({ durum: { $ne: 'İptal' } }).sort({ tarih: -1 })));
+app.get('/api/kuponlar', adminCheck, async (req, res) => res.json(await Kupon.find({})));
+app.get('/api/mesajlar', adminCheck, async (req, res) => res.json(await Mesaj.find({})));
+app.get('/api/ayarlar', adminCheck, async (req, res) => res.json(await Ayar.findOne({}) || {}));
+app.post('/api/ayarlar', adminCheck, async (req, res) => { await Ayar.findOneAndUpdate({}, req.body, { upsert: true }); res.json({ m: 'OK' }); });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Sunucu Aktif.`));
