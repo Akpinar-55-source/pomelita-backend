@@ -12,12 +12,12 @@ const app = express();
 
 // --- E-POSTA AYARI ---
 const transporter = nodemailer.createTransport({
-    host: "smtp-mail.outlook.com", // Hotmail için daha kararlı host
+    host: "smtp-mail.outlook.com",
     port: 587,
     secure: false, 
     auth: {
         user: 'pomelita-shop@hotmail.com',
-        pass: 'M.stf1655' // Buraya tırnak içinde gerçek şifreni yaz
+        pass: 'M.stf1655' 
     },
     tls: {
         ciphers: 'SSLv3',
@@ -50,6 +50,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '.')));
 
+// 🛑 EKSİK OLAN KRİTİK ROUTE BURASIYDI:
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+// --- API ROTALARI ---
 app.post('/api/giris-iste', async (req, res) => {
     const { email, sifre } = req.body;
     try {
@@ -66,7 +72,7 @@ app.post('/api/giris-iste', async (req, res) => {
 
             transporter.sendMail(mailOptions, (err) => {
                 if (err) {
-                    console.log(err);
+                    console.error("Mail Hatası Detayı:", err);
                     return res.status(500).json({ error: 'Mail Hatası: ' + err.message });
                 }
                 res.json({ message: 'OTP_SENT' });
@@ -87,11 +93,13 @@ app.post('/api/dogrula', async (req, res) => {
 
 app.use('/api', authMiddleware); 
 const adminCheck = (req, res, next) => req.user.rol === 'admin' ? next() : res.status(403).json({ error: 'Yetkisiz' });
+
 app.get('/api/dashboard', adminCheck, async (req, res) => {
     const aktifSiparisler = await Siparis.find({ durum: { $ne: 'İptal' } });
     const ciro = aktifSiparisler.reduce((a, b) => a + (parseFloat(String(b.toplamTutar).replace(',','.')) || 0), 0);
     res.json({ toplamCiro: ciro, toplamSiparis: aktifSiparisler.length, toplamUrun: await Urun.countDocuments({}), okunmamisMesaj: await Mesaj.countDocuments({}) });
 });
+
 app.get('/api/urunler', async (req, res) => res.json(await Urun.find({})));
 app.post('/api/urunler', adminCheck, async (req, res) => { await new Urun(req.body).save(); res.json({ m: 'OK' }); });
 app.delete('/api/urunler/:id', adminCheck, async (req, res) => { await Urun.findByIdAndDelete(req.params.id); res.json({ m: 'OK' }); });
