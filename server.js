@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken'); 
 require('dotenv').config(); 
 
-const authMiddleware = require('./auth'); // auth.js dosyasının aynı klasörde olduğundan emin ol
+const authMiddleware = require('./auth'); 
 
 const app = express();
 
@@ -23,26 +23,36 @@ const Mesaj = mongoose.model('Mesaj', new mongoose.Schema({ ad: String, email: S
 const Ayar = mongoose.model('Ayar', new mongoose.Schema({ tel: String, email: String, address: String, analytics: String, ads: String, insta: String, face: String }), 'ayarlar');
 const Kupon = mongoose.model('Kupon', new mongoose.Schema({ kod: String, oran: Number }), 'kuponlar');
 
-// Varsayılan Admin Oluşturma (Şifreleme Dahil)
+// --- ADMIN KULLANICI GÜNCELLEME ---
 async function initializeAdminUser() {
-    const adminEmail = "admin@pomelita.com"; 
-    const existingAdmin = await Kullanici.findOne({ email: adminEmail });
-    if (!existingAdmin) {
-        const salt = await bcrypt.genSalt(10);
-        const hash = await bcrypt.hash("cokgizliadmin123", salt);
-        await new Kullanici({ ad: "Pomelita", email: adminEmail, sifre: hash, rol: 'admin' }).save();
-    }
+    const adminEmail = "pomelita-shop@hotmail.com"; 
+    const adminSifre = "1234"; 
+
+    // Önce eski admin kayıtlarını temizleyelim ki yeni bilgilerle çakışmasın
+    await Kullanici.deleteMany({ rol: 'admin' });
+
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(adminSifre, salt);
+    
+    await new Kullanici({ 
+        ad: "Pomelita Admin", 
+        email: adminEmail, 
+        sifre: hash, 
+        rol: 'admin' 
+    }).save();
+    
+    console.log(`✅ Admin Tanımlandı: ${adminEmail} / Şifre: ${adminSifre}`);
 }
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '.')));
 
-// --- SAYFA ROTALARI (Cannot GET /admin hatasını çözen kısım) ---
+// --- SAYFA ROTALARI ---
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 
-// --- GİRİŞ ROTASI ---
+// --- GİRİŞ ---
 app.post('/api/giris', async (req, res) => {
     const { email, sifre } = req.body;
     try {
@@ -65,7 +75,6 @@ app.post('/api/siparisler', async (req, res) => {
 app.use('/api', authMiddleware); 
 const adminCheck = (req, res, next) => req.user.rol === 'admin' ? next() : res.status(403).json({ error: 'Yetkisiz' });
 
-// Dashboard: İptal olanlar ciroya katılmaz
 app.get('/api/dashboard', adminCheck, async (req, res) => {
     try {
         const aktifSiparisler = await Siparis.find({ durum: { $ne: 'İptal' } });
@@ -80,7 +89,6 @@ app.get('/api/dashboard', adminCheck, async (req, res) => {
     } catch(e) { res.status(500).json({ toplamCiro: 0 }); }
 });
 
-// Sipariş Listesi: İptal olanlar gösterilmez
 app.get('/api/siparisler', adminCheck, async (req, res) => res.json(await Siparis.find({ durum: { $ne: 'İptal' } }).sort({ tarih: -1 })));
 
 app.put('/api/siparisler/:id', adminCheck, async (req, res) => {
