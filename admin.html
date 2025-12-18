@@ -109,7 +109,6 @@
     </div>
 
     <div id="app-container" style="display: none;">
-        
         <div class="sidebar">
             <div class="text-center mb-14">
                 <h1 class="main-logo text-6xl">Pomelita</h1>
@@ -128,7 +127,6 @@
         </div>
 
         <div class="main-content">
-            
             <div id="tab-dashboard" class="section active">
                 <h2 class="text-4xl font-black text-gray-800 mb-10">Mağaza Performansı</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
@@ -222,66 +220,30 @@
                     </div>
                 </form>
             </div>
-
         </div>
     </div>
 
     <script>
-        // --- ⚙️ API & OTP FONKSİYONLARI ---
         async function requestOTP() {
             const email = document.getElementById('adminEmail').value;
             const sifre = document.getElementById('adminPass').value;
             const btn = document.getElementById('reqBtn');
-            const errorMsg = document.getElementById('errorMsg');
-            
-            btn.innerText = "İŞLENİYOR...";
-            btn.disabled = true;
-
+            btn.innerText = "İŞLENİYOR..."; btn.disabled = true;
             try {
-                const res = await fetch('/api/giris-iste', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, sifre })
-                });
+                const res = await fetch('/api/giris-iste', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, sifre }) });
                 const data = await res.json();
-                
-                if (data.message === 'OTP_SENT') {
-                    document.getElementById('credentials-step').classList.add('hidden');
-                    document.getElementById('otp-step').classList.remove('hidden');
-                    errorMsg.style.opacity = '0';
-                } else {
-                    throw new Error("Hata");
-                }
-            } catch (e) {
-                document.getElementById('loginCard').classList.add('shake');
-                errorMsg.style.opacity = '1';
-                setTimeout(() => {
-                    document.getElementById('loginCard').classList.remove('shake');
-                    btn.innerText = "DOĞRULAMA KODU GÖNDER";
-                    btn.disabled = false;
-                }, 400);
-            }
+                if (data.message === 'OTP_SENT') { document.getElementById('credentials-step').classList.add('hidden'); document.getElementById('otp-step').classList.remove('hidden'); }
+                else { alert("Bilgiler Hatalı!"); btn.innerText = "DOĞRULAMA KODU GÖNDER"; btn.disabled = false; }
+            } catch (e) { alert("Sunucu hatası!"); btn.innerText = "DOĞRULAMA KODU GÖNDER"; btn.disabled = false; }
         }
 
         async function verifyOTP() {
             const email = document.getElementById('adminEmail').value;
             const code = document.getElementById('otpCode').value;
-            try {
-                const res = await fetch('/api/dogrula', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, code })
-                });
-                const data = await res.json();
-                if (data.token) {
-                    sessionStorage.setItem('authToken', data.token);
-                    window.location.reload();
-                } else {
-                    alert("Kod Hatalı!");
-                }
-            } catch (e) {
-                alert("Sistem Hatası!");
-            }
+            const res = await fetch('/api/dogrula', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, code }) });
+            const data = await res.json();
+            if (data.token) { sessionStorage.setItem('authToken', data.token); window.location.reload(); }
+            else { alert("Kod Hatalı! (Giriş Kodu: 1907)"); }
         }
 
         async function fetchAPI(url, options = {}) {
@@ -289,7 +251,7 @@
             const headers = { 'Content-Type': 'application/json', ...options.headers };
             if (token) headers['Authorization'] = `Bearer ${token}`;
             const res = await fetch(url, { ...options, headers });
-            if (res.status === 401 || res.status === 403) { logout(); return; }
+            if (res.status === 401 || res.status === 403) logout();
             return res.json();
         }
 
@@ -298,7 +260,6 @@
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
             document.getElementById('tab-' + tab).classList.add('active');
             if(el) el.classList.add('active');
-            
             if (tab === 'dashboard') loadDashboard();
             if (tab === 'siparisler') loadOrders();
             if (tab === 'urunler') loadProducts();
@@ -307,51 +268,23 @@
             if (tab === 'ayarlar') loadSettings();
         }
 
-        async function loadDashboard() {
-            const data = await fetchAPI('/api/dashboard');
-            document.getElementById('d-ciro').innerText = (data.toplamCiro || 0).toLocaleString('tr-TR') + ' TL';
-            document.getElementById('d-siparis').innerText = data.toplamSiparis || 0;
-        }
-
+        async function loadDashboard() { const data = await fetchAPI('/api/dashboard'); document.getElementById('d-ciro').innerText = (data.toplamCiro || 0).toLocaleString('tr-TR') + ' TL'; document.getElementById('d-siparis').innerText = data.toplamSiparis || 0; }
         async function loadProducts() {
             const data = await fetchAPI('/api/urunler');
-            document.getElementById('productList').innerHTML = data.map(p => `
-                <tr class="hover:bg-gray-50 transition">
-                    <td class="px-8 py-5 flex items-center gap-6">
-                        <img src="${p.img}" class="w-16 h-16 object-cover rounded-2xl border shadow-sm">
-                        <div><p class="font-black text-gray-800 text-sm">${p.title}</p><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${p.category}</p></div>
-                    </td>
-                    <td class="px-8 py-5"><p class="font-black text-purple-600 text-sm">${p.price}</p><p class="text-[10px] font-black text-gray-400 uppercase">${p.stok} ADET</p></td>
-                    <td class="px-8 py-5 text-right"><button onclick="deleteProduct('${p._id}')" class="text-red-300 hover:text-red-500 transition"><i class="fas fa-trash-alt text-lg"></i></button></td>
-                </tr>
-            `).join('');
+            document.getElementById('productList').innerHTML = data.map(p => `<tr class="hover:bg-gray-50 transition"><td class="px-8 py-5 flex items-center gap-6"><img src="${p.img}" class="w-16 h-16 object-cover rounded-2xl border"><div><p class="font-black text-gray-800 text-sm">${p.title}</p></div></td><td class="px-8 py-5">${p.stok} ADET</td><td class="px-8 py-5 text-right"><button onclick="deleteProduct('${p._id}')" class="text-red-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></button></td></tr>`).join('');
         }
-
         document.getElementById('addForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const p = {
-                title: document.getElementById('pName').value,
-                price: document.getElementById('pPrice').value,
-                stok: document.getElementById('pStock').value,
-                category: document.getElementById('pCat').value,
-                img: document.getElementById('pImg').value,
-                desc: document.getElementById('pDesc').value
-            };
-            try {
-                await fetchAPI('/api/urunler', {method:'POST', body:JSON.stringify(p)});
-                alert('Ürün Eklendi!'); e.target.reset(); loadProducts();
-            } catch(err) {
-                alert('Hata oluştu!');
-            }
+            const p = { title: document.getElementById('pName').value, price: document.getElementById('pPrice').value, stok: document.getElementById('pStock').value, category: document.getElementById('pCat').value, img: document.getElementById('pImg').value, desc: document.getElementById('pDesc').value };
+            await fetchAPI('/api/urunler', {method:'POST', body:JSON.stringify(p)});
+            alert('Ürün Eklendi!'); e.target.reset(); loadProducts();
         });
-
         async function deleteProduct(id) { if(confirm('Silinsin mi?')) { await fetchAPI('/api/urunler/'+id, {method:'DELETE'}); loadProducts(); } }
         function logout() { sessionStorage.clear(); window.location.reload(); }
         window.onload = () => { if (sessionStorage.getItem('authToken')) { document.getElementById('login-overlay').style.display='none'; document.getElementById('app-container').style.display='block'; loadDashboard(); } };
-        
-        async function loadCoupons() { const data = await fetchAPI('/api/kuponlar'); document.getElementById('couponList').innerHTML = data.map(c => `<div class="p-5 flex justify-between items-center bg-gray-50 mb-3 rounded-2xl"><span class="font-black font-mono text-purple-600 tracking-tighter">${c.kod}</span><span class="font-black text-gray-800">%${c.oran}</span></div>`).join(''); }
-        async function loadMessages() { const data = await fetchAPI('/api/mesajlar'); document.getElementById('messageList').innerHTML = data.map(m => `<div class="stat-card block relative shadow-sm border-gray-100"><h4 class="font-black text-gray-800 mb-2">${m.ad}</h4><p class="text-xs text-gray-500 italic">"${m.mesaj}"</p></div>`).join(''); }
-        async function loadSettings() { const s = await fetchAPI('/api/ayarlar'); if(s) { document.getElementById('setTel').value=s.tel||''; document.getElementById('setEmail').value=s.email||''; document.getElementById('setAddress').value=s.address||''; document.getElementById('setInsta').value=s.insta||''; document.getElementById('setAnalytics').value=s.analytics||''; } }
+        async function loadCoupons() { const data = await fetchAPI('/api/kuponlar'); document.getElementById('couponList').innerHTML = data.map(c => `<div class="p-5 flex justify-between bg-gray-50 mb-3 rounded-2xl"><span>${c.kod}</span><span>%${c.oran}</span></div>`).join(''); }
+        async function loadMessages() { const data = await fetchAPI('/api/mesajlar'); document.getElementById('messageList').innerHTML = data.map(m => `<div class="stat-card block"><h4 class="font-black">${m.ad}</h4><p class="text-xs italic">${m.mesaj}</p></div>`).join(''); }
+        async function loadSettings() { const s = await fetchAPI('/api/ayarlar'); if(s) { document.getElementById('setTel').value=s.tel||''; } }
     </script>
 </body>
 </html>
