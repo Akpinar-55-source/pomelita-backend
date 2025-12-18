@@ -228,29 +228,36 @@
 
     <script>
         // --- ⚙️ API & OTP FONKSİYONLARI (Kısaltılmamış Orijinal Mantık) ---
-        async function requestOTP() {
-            const email = document.getElementById('adminEmail').value;
-            const sifre = document.getElementById('adminPass').value;
-            const btn = document.getElementById('reqBtn');
-            btn.innerText = "KOD GÖNDERİLİYOR..."; btn.disabled = true;
+       async function requestOTP() {
+    const email = document.getElementById('adminEmail').value;
+    const sifre = document.getElementById('adminPass').value;
+    const btn = document.getElementById('reqBtn');
+    
+    btn.innerText = "İŞLENİYOR...";
+    btn.disabled = true;
 
-            try {
-                const res = await fetch('/api/giris-iste', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, sifre })
-                });
-                const data = await res.json();
-                if (data.message === 'OTP_SENT') {
-                    document.getElementById('credentials-step').classList.add('hidden');
-                    document.getElementById('otp-step').classList.remove('hidden');
-                } else { throw new Error(); }
-            } catch (e) {
-                document.getElementById('loginCard').classList.add('shake');
-                document.getElementById('errorMsg').style.opacity = '1';
-                setTimeout(() => { document.getElementById('loginCard').classList.remove('shake'); btn.innerText = "KOD GÖNDER"; btn.disabled = false; }, 500);
-            }
+    try {
+        const res = await fetch('/api/giris-iste', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, sifre })
+        });
+        const data = await res.json();
+        
+        if (data.message === 'OTP_SENT') {
+            document.getElementById('credentials-step').classList.add('hidden');
+            document.getElementById('otp-step').classList.remove('hidden');
+        } else {
+            alert("Bilgiler hatalı!");
+            btn.innerText = "KOD GÖNDER";
+            btn.disabled = false;
         }
+    } catch (e) {
+        alert("Bağlantı hatası!");
+        btn.innerText = "KOD GÖNDER";
+        btn.disabled = false;
+    }
+}
 
         async function verifyOTP() {
             const email = document.getElementById('adminEmail').value;

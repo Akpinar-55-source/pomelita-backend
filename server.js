@@ -60,37 +60,27 @@ app.post('/api/giris-iste', async (req, res) => {
     const { email, sifre } = req.body;
     try {
         const user = await Kullanici.findOne({ email });
+        // E-posta ve şifre kontrolü
         if (user && await bcrypt.compare(sifre, user.sifre)) {
-            currentOTP = Math.floor(100000 + Math.random() * 900000).toString();
-            
-            const mailOptions = {
-                from: 'pomelita-shop@hotmail.com',
-                to: 'pomelita-shop@hotmail.com',
-                subject: 'Pomelita Giriş Kodu',
-                text: `Admin paneli giriş kodunuz: ${currentOTP}`
-            };
-
-            transporter.sendMail(mailOptions, (err) => {
-                if (err) {
-                    console.error("Mail Hatası Detayı:", err);
-                    return res.status(500).json({ error: 'Mail Hatası: ' + err.message });
-                }
-                res.json({ message: 'OTP_SENT' });
-            });
-        } else res.status(401).json({ error: 'Hatalı giriş!' });
+            // Kod gönderme beklemiyoruz, direkt onay veriyoruz
+            res.json({ message: 'OTP_SENT' }); 
+        } else {
+            res.status(401).json({ error: 'Hatalı giriş!' });
+        }
     } catch(e) { res.status(500).json({ error: 'Hata' }); }
 });
 
 app.post('/api/dogrula', async (req, res) => {
     const { email, code } = req.body;
-    if (currentOTP && code === currentOTP) {
+    // BURASI ÖNEMLİ: Senin gizli kodun "1907" olsun (istediğinle değiştir)
+    if (code === "1907") { 
         const user = await Kullanici.findOne({ email });
         const token = jwt.sign({ id: user._id, email: user.email, rol: user.rol }, process.env.JWT_SECRET, { expiresIn: '7d' });
-        currentOTP = null;
         res.json({ token, user: { ad: user.ad, rol: user.rol } });
-    } else res.status(401).json({ error: 'Hatalı kod!' });
+    } else {
+        res.status(401).json({ error: 'Hatalı kod!' });
+    }
 });
-
 app.use('/api', authMiddleware); 
 const adminCheck = (req, res, next) => req.user.rol === 'admin' ? next() : res.status(403).json({ error: 'Yetkisiz' });
 
